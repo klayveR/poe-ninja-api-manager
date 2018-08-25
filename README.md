@@ -1,7 +1,7 @@
 # poe-ninja-api-manager
-[![NPM version](https://img.shields.io/npm/v/poe-log-monitor.svg)](https://www.npmjs.com/package/poe-ninja-api-manager)
-[![NPM Downloads](https://img.shields.io/npm/dt/poe-log-monitor.svg)](https://www.npmjs.com/package/poe-ninja-api-manager)
-[![NPM License](https://img.shields.io/npm/l/poe-log-monitor.svg)](https://www.npmjs.com/package/poe-ninja-api-manager)
+[![NPM version](https://img.shields.io/npm/v/poe-ninja-api-manager.svg)](https://www.npmjs.com/package/poe-ninja-api-manager)
+[![NPM Downloads](https://img.shields.io/npm/dt/poe-ninja-api-manager.svg)](https://www.npmjs.com/package/poe-ninja-api-manager)
+[![NPM License](https://img.shields.io/npm/l/poe-ninja-api-manager.svg)](https://www.npmjs.com/package/poe-ninja-api-manager)
 
 ## Contents
 
@@ -39,7 +39,7 @@ ninjaAPI.getItem({name: "Shavronne's Wrappings", links: 6}, function(err, data) 
     - `loadOnStart` - Loads previously saved data from a local file. The data will be loaded *synchronously*, so don't use this is you want to avoid blocking at the start of your application.
       - default: `false`
 
-Constructs a new `NinjaAPI`. Available leagues will automatically be loaded or updated if necessary.
+Constructs a new `NinjaAPI`.
 
 ### update([options][, callback])
 - `options` - An optional object containing some of the following options
