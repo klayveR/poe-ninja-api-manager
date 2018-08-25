@@ -1,0 +1,30 @@
+{
+  "name": "poe-ninja-api-manager",
+  "version": "0.1.0",
+  "description": "Let's you update, load, save and access specific items from the poe.ninja API",
+  "main": "index.js",
+  "keywords": [
+    "poe",
+    "path of exile",
+    "poe.ninja",
+    "api",
+    "manager"
+  ],
+  "homepage": "https://github.com/klayveR/poe-ninja-api-manager#readme",
+  "bugs": {
+    "url": "https://github.com/klayveR/poe-ninja-api-manager/issues"
+  },
+  "author": {
+    "name": "Tobias Hoffmann",
+    "email": "tobiashoffmann7@gmail.com",
+    "url": "http://klayver.de"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/klayveR/poe-ninja-api-manager.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "request": "^2.88.0"
+  }
+}
