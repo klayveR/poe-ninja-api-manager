@@ -20,14 +20,15 @@ $ npm install poe-ninja-api-manager
 var NinjaAPI = require("poe-ninja-api-manager");
 
 var ninjaAPI = new NinjaAPI({
-    league: "Hardcore Incursion",
-    loadOnStart: true
+    league: "Incursion"
 });
 
-ninjaAPI.getItem({name: "Shavronne's Wrappings", links: 6}, function(err, data) {
-    if(err) return console.log(err);
-    console.log(data.chaosValue);
-});
+ninjaAPI.load(function(err, data) {
+  var shavs = ninjaAPI.getItem("Shavronne's Wrappings", {links: 6});
+
+  // Do something with this data
+  console.log("Shavronne's Wrappings (6-link) is worth " + shavs.chaosValue + " Chaos in Incursion league");
+})
 ```
 
 ## Methods
@@ -57,15 +58,12 @@ This method fetches all the data for a single league from poe.ninja.
 ### get()
 Returns the full poe.ninja data set (obviously, you must load or update before to receive anything).
 
-### getItem([options][, callback])
+### getItem(name[, options])
+- `name` - Name of the item
 - `options` - An optional object containing some of the following options
-    - `name` - (Required) Name of the item
     - `league` - Set a specific league you want to get the item from, overrides the league set in the constructor
     - `links` - Links of the item (usually only used for body armours or weapons)
       - Possible values: `0`, `5`, `6`, everything else will default to `0`
-- `callback` - An optional callback
-    - `error` - If something went wrong, throw this
-    - `data` - An object containing information about the item. The format is the same poe.ninja uses.
 
 This method returns item information about any item which you could also find on poe.ninja (obviously, you must load or update before to receive anything).
 

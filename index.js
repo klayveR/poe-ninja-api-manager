@@ -44,7 +44,7 @@ function getCallback(args, callback) {
 NinjaAPI.prototype.update = function(args, callback) {
   callback = getCallback(args, callback);
   var self = this;
-  
+
   var league = args.league || this.league;
   var save = args.save || true;
   var delay = args.delay || 200;
@@ -140,23 +140,15 @@ NinjaAPI.prototype.update = function(args, callback) {
   }
 
   // Returns data for an item by name
-  NinjaAPI.prototype.getItem = function(args, callback) {
-    callback = getCallback(args, callback);
-
-    var name = args.name || "";
+  NinjaAPI.prototype.getItem = function(name, args) {
     var league = args.league || this.league;
     var links = args.links || 0;
+    var match = null;
 
     // Set links to 0 if between 1-4 or higher than 6 links, because poe.ninja doesn't have data for those
     if((links > 0 && links < 5) || links > 6) links = 0;
-
-    if(name === "") {
-      if(callback && typeof callback === 'function') {
-        callback(new Error("Please specify an item name"));
-      }
-    } else if(this.data.hasOwnProperty(league) && this.data[league].hasOwnProperty('item')) {
-      var match = null;
-
+    
+    if(name !== "" && this.data.hasOwnProperty(league) && this.data[league].hasOwnProperty('item') && this.data[league].hasOwnProperty('currency')) {
       // Match every item that has the name in items
       var item = this.data[league].item.filter(function (item) { return item.name == name });
       // Match every item that has the name in currency
@@ -172,21 +164,10 @@ NinjaAPI.prototype.update = function(args, callback) {
         match = item[0];
       } else if(currency.length > 0) {
         match = currency[0];
-      } else {
-        if(callback && typeof callback === 'function') {
-          callback(new Error("No data found for " + name + " (" + links + " links) in " + league + " league"));
-        }
-        return;
-      }
-
-      if(callback && typeof callback === 'function') {
-        callback(null, match);
-      }
-    } else {
-      if(callback && typeof callback === 'function') {
-        callback(new Error("No data found for " + name + " (" + links + " links) in " + league + " league, it is most likely not updated or loaded"));
       }
     }
+
+    return match;
   }
 
   // Returns the current dataset
