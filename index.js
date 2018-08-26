@@ -168,8 +168,10 @@ NinjaAPI.prototype.update = function(args, callback) {
       // Determine which of the above 3 matches
       if(item.length > 0) {
         match = item[0];
+        match['apiType'] = 'item';
       } else if(currency.length > 0) {
         match = currency[0];
+        match['apiType'] = 'currency';
       }
     }
 

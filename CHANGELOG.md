@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.2.3] - 2018-08-26
+### Changed
+- The object returned by the `getItem()` method now has a `apiType` property, which indicates whether the item is an item or currency
+
 ## [0.2.2] - 2018-08-26
 ### Added
 - Added a `path` option in the constructor, defining the path to the local save files
