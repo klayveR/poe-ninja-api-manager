@@ -30,10 +30,21 @@ function NinjaAPI(args) {
   }
 }
 
+// Gets the correct callback function or returns null
+function getCallback(args, callback) {
+  if (typeof args === 'function') {
+    return args;
+  } else if (typeof callback === 'function') {
+    return callback;
+  }
+  return null;
+}
+
 // Updates the poe.ninja dataset and saves it
 NinjaAPI.prototype.update = function(args, callback) {
+  callback = getCallback(args, callback);
   var self = this;
-
+  
   var league = args.league || this.league;
   var save = args.save || true;
   var delay = args.delay || 200;
@@ -130,6 +141,8 @@ NinjaAPI.prototype.update = function(args, callback) {
 
   // Returns data for an item by name
   NinjaAPI.prototype.getItem = function(args, callback) {
+    callback = getCallback(args, callback);
+
     var name = args.name || "";
     var league = args.league || this.league;
     var links = args.links || 0;
@@ -222,6 +235,8 @@ NinjaAPI.prototype.update = function(args, callback) {
 
   // Updates the league from the official GGG API
   NinjaAPI.prototype.updateLeagues = function(args, callback) {
+    callback = getCallback(args, callback);
+
     var self = this;
     var save = args.save || true;
 
