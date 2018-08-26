@@ -17,17 +17,23 @@ $ npm install poe-ninja-api-manager
 
 **Usage:**
 ```javascript
-var NinjaAPI = require("poe-ninja-api-manager");
+var NinjaAPI = require("poe-ninja-api-manager")
 
+// Create a new api object and set default league to Incursion, don't load saved data on start
 var ninjaAPI = new NinjaAPI({
-    league: "Incursion"
-});
+    league: "Incursion",
+    loadOnStart: false
+})
 
-ninjaAPI.load(function(err, data) {
-  var shavs = ninjaAPI.getItem("Shavronne's Wrappings", {links: 6});
+// Update data and save it locally
+ninjaAPI.update({save: true}, function(err, data) {
+  if(err) { return console.log(err) }
 
-  // Do something with this data
-  console.log("Shavronne's Wrappings (6-link) is worth " + shavs.chaosValue + " Chaos in Incursion league");
+  console.log("Successful requests:", data.requests.success, "\nFailed requests:", data.requests.failed, "\nSuccessfully saved to file?", data.save.success ? "Yes" : "No")
+
+  // Get item by name and specify that it should be 6-linked and do something with that data
+  var item = ninjaAPI.getItem("Shavronne's Wrappings", {links: 6})
+  console.log("Shavronne's Wrappings (6-link) is worth " + item.chaosValue + " Chaos in Incursion league")
 })
 ```
 
@@ -39,6 +45,8 @@ ninjaAPI.load(function(err, data) {
     	- default: `Standard`
     - `loadOnStart` - Loads previously saved data from a local file. The data will be loaded *synchronously*, so don't use this is you want to avoid blocking at the start of your application.
       - default: `false`
+    - `path` - Path where the data should be saved and loaded from
+      - default: `./`
 
 Constructs a new `NinjaAPI`.
 

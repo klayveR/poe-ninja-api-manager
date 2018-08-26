@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.2.2] - 2018-08-26
+### Added
+- Added a `path` option in the constructor, defining the path to the local save files
+
+### Fixed
+- Fixed a bug where the `getItem()` method would incorrectly return legacy foil items instead of normal ones
+
 ## [0.2.1] - 2018-08-26
 ### Fixed
 - Fixed a bug where the `getItem()` method would not return anything if no options where passed
@@ -21,7 +28,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Added
 - Initial release
 
-[0.2.1]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.2.0
+[0.2.2]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.2.2
+[0.2.1]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.2.1
 [0.2.0]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.2.0
 [0.1.1]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.1.1
 [0.1.0]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.1.0

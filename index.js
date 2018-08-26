@@ -14,11 +14,12 @@ function NinjaAPI(args) {
 
   this.league = args.league || "Standard";
   this.loadOnStart = args.loadOnStart || false;
+  this.path = args.path || './';
 
   // Load data synchronously, so the script can start getting items immediately
   if(this.loadOnStart) {
-    if (fs.existsSync('./ninjaData.json')) {
-      var contents = fs.readFileSync('./ninjaData.json', 'utf8');
+    if (fs.existsSync(this.path + 'ninjaData.json')) {
+      var contents = fs.readFileSync(this.path + 'ninjaData.json', 'utf8');
       try {
         this.data = JSON.parse(contents);
       } catch (e) {
@@ -155,12 +156,14 @@ NinjaAPI.prototype.update = function(args, callback) {
     if((links > 0 && links < 5) || links > 6) links = 0;
 
     if(name !== "" && this.data.hasOwnProperty(league) && this.data[league].hasOwnProperty('item') && this.data[league].hasOwnProperty('currency')) {
-      // Match every item that has the name in items
-      var item = this.data[league].item.filter(function (item) { return item.name == name });
       // Match every item that has the name in currency
       var currency = this.data[league].currency.filter(function (item) { return item.currencyTypeName == name });
+      // Match every item that has the name in items
+      var item = this.data[league].item.filter(function (item) { return item.name == name });
       // Filter links
       item = item.filter(function (item) { return item.links == links });
+      // Filter out foil items, I'll implement support for those later
+      item = item.filter(function (item) { return item.itemClass != 9 });
 
       // Determine which of the above 3 matches
       if(item.length > 0) {
@@ -279,7 +282,7 @@ NinjaAPI.prototype.update = function(args, callback) {
     // Make this usable in readFile callback
     var self = this;
 
-    fs.readFile('./ninjaData.json', function(err, contents) {
+    fs.readFile(this.path + 'ninjaData.json', function(err, contents) {
       if(err) {
         if(callback && typeof callback === 'function') {
           callback(err, false);
@@ -294,7 +297,7 @@ NinjaAPI.prototype.update = function(args, callback) {
 
   // Saves current dataset to cache file
   NinjaAPI.prototype.save = function(callback) {
-    fs.writeFile('./ninjaData.json', JSON.stringify(this.data, null, 4), (err) => {
+    fs.writeFile(this.path + 'ninjaData.json', JSON.stringify(this.data, null, 4), (err) => {
       if (err) {
         if(callback && typeof callback === 'function') {
           callback(err, false);
@@ -313,7 +316,7 @@ NinjaAPI.prototype.update = function(args, callback) {
     // Make this usable in readFile callback
     var self = this;
 
-    fs.readFile('./leagues.json', function(err, contents) {
+    fs.readFile(this.path + 'leagues.json', function(err, contents) {
       if(err) {
         if(callback && typeof callback === 'function') {
           callback(err, false);
@@ -328,7 +331,7 @@ NinjaAPI.prototype.update = function(args, callback) {
 
   // Saves current leagues to cache file
   NinjaAPI.prototype.saveLeagues = function(callback) {
-    fs.writeFile('./leagues.json', JSON.stringify(this.leagues, null, 4), (err) => {
+    fs.writeFile(this.path + 'leagues.json', JSON.stringify(this.leagues, null, 4), (err) => {
       if (err) {
         if(callback && typeof callback === 'function') {
           callback(err, false);
