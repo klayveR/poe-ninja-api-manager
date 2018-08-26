@@ -64,7 +64,7 @@ Constructs a new `NinjaAPI`.
 This method fetches all the data for a single league from poe.ninja.
 
 ### get()
-Returns the full poe.ninja data set (obviously, you must load or update before to receive anything).
+Returns the full poe.ninja data object (obviously, you must load or update before to receive anything).
 
 ### getItem(name[, options])
 - `name` - Name of the item
@@ -73,7 +73,18 @@ Returns the full poe.ninja data set (obviously, you must load or update before t
     - `links` - Links of the item (usually only used for body armours or weapons)
       - Possible values: `0`, `5`, `6`, everything else will default to `0`
 
-This method returns item information about any item which you could also find on poe.ninja (obviously, you must load or update before to receive anything).
+This method returns item information about any item which you could also find on poe.ninja.
+You must load or update data before calling this method in order to receive anything.
+
+### get()
+Returns the full poe.ninja data object.
+You must load or update data before calling this method in order to receive anything.
+
+### getCurrencyDetails(name)
+- `name` - Name of the currency
+
+Returns details for the specified currency (such as the `icon` or `poeTradeId`)
+You must load or update data before calling this method in order to receive anything.
 
 ### save([callback])
 - `callback` - An optional callback
@@ -94,12 +105,9 @@ Loads poe.ninja data from a local file.
 
 Sets the league that should be used as default.
 
-### getLeagues([callback])
-- `callback` - An optional callback
-  - `error` - If something went wrong, throw this
-  - `data` - An array containing all the available leagues
-
-Returns all the available leagues.
+### getLeagues()
+Returns an array containing every league that can have poe.ninja data.
+You must load or update leagues before calling this method in order to receive anything.
 
 ### updateLeagues([options][, callback])
 - `options` - An optional object containing some of the following options

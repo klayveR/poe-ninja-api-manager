@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.3.0] - 2018-08-26
+### Added
+- The `update()` method now also updates currency details, which contain additional currency data such as the `icon` or `poeTradeId`
+- Added the `hasDataForLeague()` method which returns whether or not the data object has data for a specific league
+- Added the `getCurrencyDetails()` method which returns currency details
+
+### Changed
+- The `getLeagues()` method no longer has a callback and simply returns the league data or `null` in case of invalid parameters or missing data
+- `icon` and `poeTradeId` are no longer properties of an item object returned by `getItem()` if the item is a currency. Use `getCurrencyDetails()` to get them instead
+
 ## [0.2.3] - 2018-08-26
 ### Changed
 - The object returned by the `getItem()` method now has a `apiType` property, which indicates whether the item is an item or currency
@@ -32,6 +42,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Added
 - Initial release
 
+[0.3.0]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.3.0
+[0.2.3]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.2.3
 [0.2.2]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.2.2
 [0.2.1]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.2.1
 [0.2.0]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.2.0

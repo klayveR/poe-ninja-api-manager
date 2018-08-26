@@ -96,7 +96,7 @@ NinjaAPI.prototype.update = function(args, callback) {
                 for (var index in body.lines) {
                   var item = body.lines[index];
 
-                  // If item is curr5ency, find icon and poe.trade ID in currencyDetails and add them to the object
+                  // If item is currency, find icon and poe.trade ID in currencyDetails and add them to the object
                   if(apiType === 'currency') {
                     var match = body.currencyDetails.filter(function (currency) { return currency.name == item.currencyTypeName });
                     item['icon'] = match[0].icon;
@@ -107,8 +107,34 @@ NinjaAPI.prototype.update = function(args, callback) {
                   self.data[league][apiType].push(item);
                 }
 
+                // Currency APIs will also send a currencyDetails object, which should be saved here. This data is not specific to a league
+                // This data will always be updated if it doesn't exist or differs from the previously saved currency details
+                if(body.hasOwnProperty('currencyDetails')
+                && Object.keys(body.currencyDetails).length !== 0) {
+                  // Add currencyDetails as a new key if not existing
+                  if(!self.data.hasOwnProperty('currencyDetails'))
+                  self.data['currencyDetails'] = {};
+
+                  var currencyDetails = {};
+
+                  // Iterate through each item
+                  for (var index in body.currencyDetails) {
+                    var item = body.currencyDetails[index];
+
+                    // Add currency as new element, set name as key
+                    currencyDetails[item.name] = item;
+                  }
+
+                  // Compare the new currency details to the saved ones, if they don't differ don't update
+                  if(JSON.stringify(currencyDetails) !== JSON.stringify(self.data.currencyDetails)) {
+                    self.data.currencyDetails = currencyDetails;
+                  }
+                }
+
                 // Save as successful request
                 requests.success.push(type);
+
+
               } else {
                 // If the body is invalid, save as failed request
                 requests.failed.push(type);
@@ -183,36 +209,28 @@ NinjaAPI.prototype.update = function(args, callback) {
     return this.data;
   }
 
+  // Returns details for a currency
+  NinjaAPI.prototype.getCurrencyDetails = function(name) {
+    if(this.data.hasOwnProperty('currencyDetails')) {
+      if(this.data.currencyDetails.hasOwnProperty(name)) {
+        return this.data.currencyDetails[name];
+      }
+    }
+    return null;
+  }
+
+  // Returns true if there is data for league
+  NinjaAPI.prototype.hasDataForLeague = function(league) {
+    if(this.data.hasOwnProperty(league)) {
+      return true;
+    }
+    return false;
+  }
+
   // Returns all leagues, if not loaded try to load, if not loadable attempt to update
   // This functions feels messy, but I can't be bothered to clean it up right now. It's a mostly useless feature anyways
   NinjaAPI.prototype.getLeagues = function(callback) {
-    var self = this;
-
-    if(this.leagues.length === 0) {
-      this.loadLeagues(function(err, data) {
-        if(err) {
-          self.updateLeagues({save: true}, function(err, data) {
-            if(err) {
-              if(callback && typeof callback === 'function') {
-                callback(err);
-              }
-            } else {
-              if(callback && typeof callback === 'function') {
-                callback(null, self.leagues);
-              }
-            }
-          }.bind(self));
-        } else {
-          if(callback && typeof callback === 'function') {
-            callback(null, self.leagues);
-          }
-        }
-      }.bind(self));
-    } else {
-      if(callback && typeof callback === 'function') {
-        callback(null, this.leagues);
-      }
-    }
+    return this.leagues;
   }
 
   // Sets the league to use as default
@@ -227,8 +245,9 @@ NinjaAPI.prototype.update = function(args, callback) {
     callback = getCallback(args, callback);
 
     var self = this;
-    var save = args.save || true;
-
+    if(args && typeof args !== 'function') {
+      var save = args.save || true;
+    }
     request('http://api.pathofexile.com/leagues?type=main', {json: true}, function(err, res, body) {
       if (err) { callback(err); return; }
 
