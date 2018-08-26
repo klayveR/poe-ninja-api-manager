@@ -45,9 +45,12 @@ NinjaAPI.prototype.update = function(args, callback) {
   callback = getCallback(args, callback);
   var self = this;
 
-  var league = args.league || this.league;
-  var save = args.save || true;
-  var delay = args.delay || 200;
+  var league = this.league, save = true, delay = 200;
+  if(args && typeof args !== 'function') {
+    league = args.league || this.league;
+    save = args.save || true;
+    delay = args.delay || 200;
+  }
 
   var count = 0;
   var requests = {success: [], failed: []};
@@ -141,23 +144,23 @@ NinjaAPI.prototype.update = function(args, callback) {
 
   // Returns data for an item by name
   NinjaAPI.prototype.getItem = function(name, args) {
-    var league = args.league || this.league;
-    var links = args.links || 0;
+    var league = this.league, links = 0;
+    if(args !== undefined && typeof args !== 'function') {
+      league = args.league || this.league;
+      links = args.links || 0;
+    }
     var match = null;
 
     // Set links to 0 if between 1-4 or higher than 6 links, because poe.ninja doesn't have data for those
     if((links > 0 && links < 5) || links > 6) links = 0;
-    
+
     if(name !== "" && this.data.hasOwnProperty(league) && this.data[league].hasOwnProperty('item') && this.data[league].hasOwnProperty('currency')) {
       // Match every item that has the name in items
       var item = this.data[league].item.filter(function (item) { return item.name == name });
       // Match every item that has the name in currency
       var currency = this.data[league].currency.filter(function (item) { return item.currencyTypeName == name });
-
-      // Filter links, if specified in args
-      if(args.links !== undefined) {
-        item = item.filter(function (item) { return item.links == links });
-      }
+      // Filter links
+      item = item.filter(function (item) { return item.links == links });
 
       // Determine which of the above 3 matches
       if(item.length > 0) {
