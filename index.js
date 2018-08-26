@@ -209,7 +209,7 @@ NinjaAPI.prototype.update = function(args, callback) {
         return this.data.currencyDetails[name];
       }
     }
-    return null;
+    return {};
   }
 
   // Returns true if there is data for league
@@ -228,7 +228,7 @@ NinjaAPI.prototype.update = function(args, callback) {
 
   // Sets the league to use as default
   NinjaAPI.prototype.setLeague = function(league) {
-    if(league !== "" && league !== undefined) {
+    if(league !== "" && typeof league == "undefined") {
       this.league = league;
     }
   }

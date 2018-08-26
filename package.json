@@ -1,6 +1,6 @@
 {
   "name": "poe-ninja-api-manager",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Let's you update, load, save and access specific items from the poe.ninja API",
   "main": "index.js",
   "keywords": [
