@@ -96,13 +96,6 @@ NinjaAPI.prototype.update = function(args, callback) {
                 for (var index in body.lines) {
                   var item = body.lines[index];
 
-                  // If item is currency, find icon and poe.trade ID in currencyDetails and add them to the object
-                  if(apiType === 'currency') {
-                    var match = body.currencyDetails.filter(function (currency) { return currency.name == item.currencyTypeName });
-                    item['icon'] = match[0].icon;
-                    item['poeTradeId'] = match[0].poeTradeId;
-                  }
-
                   // Add item as new element
                   self.data[league][apiType].push(item);
                 }

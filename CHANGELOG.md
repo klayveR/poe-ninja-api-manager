@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
+## [0.3.1] - 2018-08-26
+### Fixed
+- `icon` and `poeTradeId` are now actually no longer properties of an item object returned by `getItem()`, which should've been the case in the previous update ;)
+
 ## [0.3.0] - 2018-08-26
 ### Added
 - The `update()` method now also updates currency details, which contain additional currency data such as the `icon` or `poeTradeId`
@@ -42,6 +46,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 ### Added
 - Initial release
 
+[0.3.1]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.3.1
 [0.3.0]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.3.0
 [0.2.3]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.2.3
 [0.2.2]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.2.2
