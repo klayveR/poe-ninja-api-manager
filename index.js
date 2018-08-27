@@ -169,7 +169,8 @@ NinjaAPI.prototype.update = function(args, callback) {
       league = args.league || this.league;
       links = args.links || 0;
     }
-    var match = null;
+    
+    var match = {};
 
     // Set links to 0 if between 1-4 or higher than 6 links, because poe.ninja doesn't have data for those
     if((links > 0 && links < 5) || links > 6) links = 0;
