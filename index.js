@@ -224,8 +224,7 @@ class NinjaAPI {
       for(var type in this.data[league]) {
         var matches = this._getMatchesInType(type, name, options);
 
-        if(typeof matches !== "undefined" && matches.length > 0) {
-          matches = this._addApiTypeToMatches(type, matches);
+        if(matches.length > 0) {
           return matches;
         }
       }
@@ -235,32 +234,24 @@ class NinjaAPI {
   }
 
   /*
-  * Adds the API type to matches and returns the adjusted matches array
-  */
-  _addApiTypeToMatches(type, matches = []) {
-    for(var i = 0; i < matches.length; i++) {
-      matches[i]["apiType"] = type;
-    }
-
-    return matches;
-  }
-
-  /*
   * Calls the corresponding functions for finding matches in items and currency
   */
   _getMatchesInType(type, name, options) {
     var league = options.league || this.league;
     var overview = Helpers.getOverviewByType(type, this.apis);
+    var matches = [];
 
-    if(typeof overview !== "undefined" && this._hasDataForTypeInLeague(type, league)) {
+    if(this._hasDataForTypeInLeague(type, league)) {
       if(overview === "item") {
-        return this._getItemMatchesInType(type, name, options);
+        matches = this._getItemMatchesInType(type, name, options);
       } else {
-        return this._getCurrencyMatchesInType(type, name, options);
+        matches = this._getCurrencyMatchesInType(type, name, options);
       }
+
+      matches = Helpers.addApiTypeToMatches(type, matches);
     }
 
-    return [];
+    return matches;
   }
 
   /*

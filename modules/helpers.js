@@ -69,6 +69,19 @@ class Helpers {
   static hasCurrencyDetailsData(obj) {
     return Helpers.hasPropertyWithData(obj, "currencyDetails");
   }
+
+  /*
+  * Adds the API type to matches and returns the adjusted matches array
+  */
+  static addApiTypeToMatches(type, matches) {
+    matches = matches || [];
+    
+    for(var i = 0; i < matches.length; i++) {
+      matches[i]["apiType"] = type;
+    }
+
+    return matches;
+  }
 }
 
 module.exports = Helpers;
