@@ -58,7 +58,7 @@ class NinjaAPI {
 
     this._resetLeagueData(league);
 
-    var promise = new Promise(function(resolve, reject) {
+    return promise = new Promise(function(resolve, reject) {
       var promises = self._getUpdateCallsArray(league, delay);
 
       Promise.all(promises)
@@ -69,8 +69,6 @@ class NinjaAPI {
         return reject(error);
       })
     });
-
-    return promise;
   }
 
   /*
@@ -80,12 +78,12 @@ class NinjaAPI {
     var self = this;
     var url = Helpers.buildApiUrl(api.overview, api.type, league);
 
-    var promise = new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       // Wait delay ms, request API data, process data, return promise
       setTimeout(function() {
         self._requestApiData(url)
         .then((data) => {
-          return self._processApiData(data, api, league);
+          return self._storeApiData(data, api, league);
         })
         .then(() => {
           return resolve(new Request(api, league).get());
@@ -95,44 +93,40 @@ class NinjaAPI {
         });
       }, delay);
     });
-
-    return promise;
   }
 
   /*
   * Requests data from an API
   */
   _requestApiData(url) {
-    var promise = new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       // Request the API
       request(url, {json: true}, function(error, response, contents) {
-        if(error) {  return reject(error); }
-
-        resolve(contents);
+        if(error) {
+          reject(error);
+        } else {
+          resolve(contents);
+        }
       });
     });
-
-    return promise;
   }
 
   /*
   * Processes the data from an API
   */
-  _processApiData(data, api, league) {
+  _storeApiData(data, api, league) {
     var self = this;
 
-    var promise = new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       if(Helpers.isValidNinjaApi(data)) {
         self._addItemsToData(data, league, api);
         self._updateCurrencyDetails(data);
 
-        return resolve(true);
+        resolve(true);
+      } else {
+        reject(new Error('The data from the requested ' + api.type + ' API (League: ' + league + ') could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure'));
       }
-
-      reject(new Error('The data from the requested ' + api.type + ' API (League: ' + league + ') could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure'));
     });
-
-    return promise;
   }
 
   /*
@@ -163,8 +157,6 @@ class NinjaAPI {
         this.data.CurrencyDetails = data.currencyDetails;
       }
     }
-
-    return;
   }
 
   /*
@@ -176,8 +168,6 @@ class NinjaAPI {
     this._addKeyToLeagueData(league, api.type);
 
     this.data[league][api.type] = data.lines;
-
-    return;
   }
 
   /*
@@ -221,7 +211,7 @@ class NinjaAPI {
   getItem(name, options = {}) {
     var self = this;
 
-    var promise = new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       var matches = self._getItemMatches(name, options);
 
       if(matches.length === 0) {
@@ -230,8 +220,6 @@ class NinjaAPI {
         resolve(matches);
       }
     });
-
-    return promise;
   }
 
   /*
@@ -412,7 +400,7 @@ class NinjaAPI {
   load() {
     var self = this;
 
-    var promise = new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       fs.readFile(self.path + self.dataFile, function(error, contents) {
         if(error) { reject(error); return; }
 
@@ -420,8 +408,6 @@ class NinjaAPI {
         resolve(true);
       });
     });
-
-    return promise;
   }
 
   /**
@@ -434,15 +420,13 @@ class NinjaAPI {
   save() {
     var self = this;
 
-    var promise = new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       fs.writeFile(self.path + self.dataFile, JSON.stringify(self.data, null, 4), (error) => {
         if(error) { reject(error); return; }
 
         resolve(true);
       });
     });
-
-    return promise;
   }
 }
 
