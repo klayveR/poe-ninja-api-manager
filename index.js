@@ -1,362 +1,497 @@
 const request = require('request');
-const fs = require("fs");
+const fs = require('fs');
 
-function NinjaAPI(args) {
-  args = args || {};
+const Helpers = require('./modules/helpers.js');
+const Request = require('./modules/request.js');
 
-  var self = this;
-  this.data = {};
-  this.leagues = [];
-  this.links = {
-    currency: ["Currency", "Fragment"],
-    item: ["DivinationCard", "Prophecy", "SkillGem", "Essence", "UniqueMap", "Map", "UniqueJewel", "UniqueFlask", "UniqueWeapon", "UniqueArmour", "UniqueAccessory"]
+class NinjaAPI {
+  /**
+  * Creates a new NinjaAPI object
+  *
+  * @constructor
+  * @param {Object} [options] An optional options object
+  * @param {string} [options.league=Standard] League that should be used as default
+  * @param {string} [options.path=./] Path where data should be saved
+  * @param {string} [options.dataFile=ninjaData.json] File in which data should be saved
+  */
+  constructor(options) {
+    options = options || {};
+
+    this.league = options.league || 'Standard';
+    this.path = options.path || './';
+    this.dataFile = options.dataFile || 'ninjaData.json'
+
+    this.data = {};
+    this.apis = [
+      {overview: 'currency', type: 'Currency'},
+      {overview: 'currency', type: 'Fragment'},
+      {overview: 'item', type: 'DivinationCard'},
+      {overview: 'item', type: 'Prophecy'},
+      {overview: 'item', type: 'SkillGem'},
+      {overview: 'item', type: 'Essence'},
+      {overview: 'item', type: 'UniqueMap'},
+      {overview: 'item', type: 'Map'},
+      {overview: 'item', type: 'UniqueJewel'},
+      {overview: 'item', type: 'UniqueFlask'},
+      {overview: 'item', type: 'UniqueWeapon'},
+      {overview: 'item', type: 'UniqueArmour'},
+      {overview: 'item', type: 'UniqueAccessory'},
+    ];
   }
 
-  this.league = args.league || "Standard";
-  this.loadOnStart = args.loadOnStart || false;
-  this.path = args.path || './';
+  /**
+  * Updates data from poe.ninja for a specific league.
+  *
+  * @param {Object} [options] An optional options object
+  * @param {string} [options.league=Standard] League that should be updated
+  * @param {string} [options.delay=200] Delay between API calls
+  * @returns {Promise}
+  * @fulfil {Array} - An array containing a list of the successful requests
+  * @reject {Error} - The `error.message` contains information about why the promise was rejected
+  */
+  update(options) {
+    options = options || {};
 
-  // Load data synchronously, so the script can start getting items immediately
-  if(this.loadOnStart) {
-    if (fs.existsSync(this.path + 'ninjaData.json')) {
-      var contents = fs.readFileSync(this.path + 'ninjaData.json', 'utf8');
-      try {
-        this.data = JSON.parse(contents);
-      } catch (e) {
-        console.log("Couldn't load on start, no valid JSON data");
-      }
-    } else {
-      console.log("Couldn't load on start, no local data file found");
-    }
-  }
-}
+    var self = this;
+    var league = options.league || this.league;
+    var delay = options.delay || 200;
 
-// Gets the correct callback function or returns null
-function getCallback(args, callback) {
-  if (typeof args === 'function') {
-    return args;
-  } else if (typeof callback === 'function') {
-    return callback;
-  }
-  return null;
-}
+    this._resetLeagueData(league);
 
-// Updates the poe.ninja dataset and saves it
-NinjaAPI.prototype.update = function(args, callback) {
-  callback = getCallback(args, callback);
-  var self = this;
+    var promise = new Promise(function(resolve, reject) {
+      var promises = self._getUpdateCallsArray(league, delay);
 
-  var league = this.league, save = true, delay = 200;
-  if(args && typeof args !== 'function') {
-    league = args.league || this.league;
-    save = args.save || true;
-    delay = args.delay || 200;
+      Promise.all(promises)
+      .then((result) => {
+        resolve(result);
+      })
+      .catch((error) => {
+        reject(error);
+      })
+    });
+
+    return promise;
   }
 
-  var count = 0;
-  var requests = {success: [], failed: []};
-  var requestCount = this.links.currency.length + this.links.item.length;
+  /*
+  * Updates an API of a certain overview and type
+  */
+  _updateApi(api, league, delay = 0) {
+    var self = this;
+    var url = Helpers.buildApiUrl(api.overview, api.type, league);
 
-  // Reset the league data
-  this.data[league] = {};
-
-  // Go through each type of JSON formats, which should be currencies and items
-  for(var apiType in this.links) {
-    // Go through each type of the API types (e.g. currency, fragments in currencies and armours, maps, ... in items)
-    this.links[apiType].forEach(function(type) {
-      count++; // Count up to calculate delay
-
-      // Build correct API link
-      var apiLink = "http://poe.ninja/api/data/" + apiType + "overview?league=" + league + "&type=" + type;
-
-      // Variables that need to be accessed in the request callback are stored in here and binded to the callback
-      var reqData = {self: self, apiLink: apiLink, apiType: apiType, type: type}
-
+    var promise = new Promise(function(resolve, reject) {
+      // Wait delay ms, request API data, process data, return promise
       setTimeout(function() {
-        // Request currency data from poe.ninja
-        request(apiLink, {json: true}, function(err, res, body) {
-          // I pretty much declare the variables from above again, otherwise I won't be able to read this code in 2 weeks
-          var apiType = reqData.apiType;
-          var self = reqData.self;
-          var type = reqData.type;
+        self._requestApiData(url)
+        .then((data) => {
+          return self._processApiData(data, api, league);
+        })
+        .then((success) => {
+          resolve(new Request(api, league).get());
+        })
+        .catch((error) => {
+          reject(error);
+        });
+      }, delay);
+    });
 
-          if (err) {
-            // If the body is invalid, request failed
-            requests.failed.push(type);
-          } else {
-            // Make sure it's a valid ninja API with a body and elements in it
-            if(body !== undefined
-              && body.hasOwnProperty('lines')
-              && Object.keys(body.lines).length !== 0) {
-                // Add type of item as a new key if not existing
-                if(!self.data[league].hasOwnProperty(apiType))
-                self.data[league][apiType] = [];
+    return promise;
+  }
 
-                // Iterate through each item
-                for (var index in body.lines) {
-                  var item = body.lines[index];
+  /*
+  * Requests data from an API
+  */
+  _requestApiData(url) {
+    var self = this;
 
-                  // Add item as new element
-                  self.data[league][apiType].push(item);
-                }
+    var promise = new Promise(function(resolve, reject) {
+      // Request the API
+      request(url, {json: true}, function(error, response, contents) {
+        if(error) {  return reject(error); }
 
-                // Currency APIs will also send a currencyDetails object, which should be saved here. This data is not specific to a league
-                // This data will always be updated if it doesn't exist or differs from the previously saved currency details
-                if(body.hasOwnProperty('currencyDetails')
-                && Object.keys(body.currencyDetails).length !== 0) {
-                  // Add currencyDetails as a new key if not existing
-                  if(!self.data.hasOwnProperty('currencyDetails'))
-                  self.data['currencyDetails'] = {};
-
-                  var currencyDetails = {};
-
-                  // Iterate through each item
-                  for (var index in body.currencyDetails) {
-                    var item = body.currencyDetails[index];
-
-                    // Add currency as new element, set name as key
-                    currencyDetails[item.name] = item;
-                  }
-
-                  // Compare the new currency details to the saved ones, if they don't differ don't update
-                  if(JSON.stringify(currencyDetails) !== JSON.stringify(self.data.currencyDetails)) {
-                    self.data.currencyDetails = currencyDetails;
-                  }
-                }
-
-                // Save as successful request
-                requests.success.push(type);
-
-
-              } else {
-                // If the body is invalid, save as failed request
-                requests.failed.push(type);
-              }
-            }
-
-            // Check if all requests have been made
-            if(requests.success.length + requests.failed.length >= requestCount) {
-              // If every request failed
-              if(requests.failed.length === requestCount) {
-                if(callback && typeof callback === 'function') {
-                  callback(new Error("No data could be fetched from poe.ninja. Either poe.ninja is down or '" + league + "' is not a valid league. Use the getLeagues method to get a list of supported leagues."), {requests: requests, save: {success: false, error: null}});
-                }
-              } else {
-                // Save to file if passed in args
-                if(save) {
-                  self.save(function(err, success) {
-                    if(callback && typeof callback === 'function') {
-                      callback(null, {requests: requests, save: {success: success, error: err}});
-                    }
-                  });
-                } else {
-                  if(callback && typeof callback === 'function') {
-                    callback(null, {requests: requests, save: {success: false, error: null}});
-                  }
-                }
-              }
-            }
-          }.bind(reqData));
-        }, delay * count);
+        resolve(contents);
       });
+    });
+
+    return promise;
+  }
+
+  /*
+  * Processes the data from an API
+  */
+  _processApiData(data, api, league) {
+    var self = this;
+
+    var promise = new Promise(function(resolve, reject) {
+      if(self._isValidNinjaApi(data)) {
+        self._addItemsToData(data, league, api);
+        self._updateCurrencyDetails(data);
+
+        return resolve(true);
+      }
+
+      reject(new Error('The data from the requested ' + api.type + ' API (League: ' + league + ') could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure'));
+    });
+
+    return promise;
+  }
+
+  /*
+  * Returns an array of functions containing calls to every API update
+  */
+  _getUpdateCallsArray(league, delay) {
+    var promises = [];
+
+    for(var i = 0; i < this.apis.length; i++) {
+      var api = this.apis[i];
+      var method = this._updateApi(api, league, delay * i).then((result) => ({ request: result }));
+
+      promises.push(method);
+    }
+
+    return promises;
+  }
+
+  /*
+  * Adds currency details to the data object if the data differs from the old data
+  */
+  _updateCurrencyDetails(data) {
+    if(this._hasCurrencyDetailsData(data)) {
+      this._addKeyToData('CurrencyDetails');
+
+      // Check if the new currency details data is different from the saved one, if yes, overwrite
+      if(!Helpers.isSameObject(this.data.CurrencyDetails, data.currencyDetails)) {
+        this.data.CurrencyDetails = data.currencyDetails;
+      }
     }
   }
 
-  // Returns data for an item by name
-  NinjaAPI.prototype.getItem = function(name, args) {
-    var league = this.league, links = 0;
-    if(args !== undefined && typeof args !== 'function') {
-      league = args.league || this.league;
-      links = args.links || 0;
+  /*
+  * Adds an item to the data object under the corresponding league and type key
+  */
+  _addItemsToData(data, league, api) {
+    // Add keys if necessary
+    this._addKeyToData(league);
+    this._addKeyToLeagueData(league, api.type);
+
+    this.data[league][api.type] = data.lines;
+  }
+
+  /*
+  * Adds a new key to the league object inside the data object
+  */
+  _addKeyToLeagueData(league, type) {
+    if(!this.data[league].hasOwnProperty(type)) {
+      this.data[league][type] = {};
+      return true;
     }
-    
-    var match = {};
 
-    // Set links to 0 if between 1-4 or higher than 6 links, because poe.ninja doesn't have data for those
-    if((links > 0 && links < 5) || links > 6) links = 0;
+    return false
+  }
 
-    if(name !== "" && this.data.hasOwnProperty(league) && this.data[league].hasOwnProperty('item') && this.data[league].hasOwnProperty('currency')) {
-      // Match every item that has the name in currency
-      var currency = this.data[league].currency.filter(function (item) { return item.currencyTypeName == name });
-      // Match every item that has the name in items
-      var item = this.data[league].item.filter(function (item) { return item.name == name });
-      // Filter links
-      item = item.filter(function (item) { return item.links == links });
-      // Filter out foil items, I'll implement support for those later
-      item = item.filter(function (item) { return item.itemClass != 9 });
+  /*
+  * Adds a new key to the data object
+  */
+  _addKeyToData(key) {
+    if(!this.data.hasOwnProperty(key)) {
+      this.data[key] = {};
+      return true;
+    }
 
-      // Determine which of the above 3 matches
-      if(item.length > 0) {
-        match = item[0];
-        match['apiType'] = 'item';
-      } else if(currency.length > 0) {
-        match = currency[0];
-        match['apiType'] = 'currency';
+    return false
+  }
+
+  /*
+  * Returns true if an API object is valid. For poe.ninja APIs, this is true if the object has the `lines` key
+  */
+  _isValidNinjaApi(obj) {
+    if(typeof obj !== 'undefined' && obj.hasOwnProperty('lines') && Object.keys(obj.lines).length !== 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /*
+  * Returns true if an API object contains currency details
+  */
+  _hasCurrencyDetailsData(obj) {
+    if(typeof obj !== 'undefined' && obj.hasOwnProperty('currencyDetails') && Object.keys(obj.currencyDetails).length !== 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+  * Returns data for an item from the currently loaded poe.ninja data object.
+  * The optional options do no apply for currency items, except for `options.league`.
+  *
+  * @param {String} name Name of the item
+  * @param {Object} [options] An optional options object
+  * @param {string} [options.league=Standard] League that should be searched
+  * @param {string} [options.links=0] Links the item should have
+  * @param {string} [options.variant=null] Variant of the item
+  * @param {string} [options.legacy=false] Set to `true` for the legacy version of the item
+  * @returns {Promise}
+  * @fulfil {Array} - An array containing the matching item as an object. If you receive multiple objects, please open an issue.
+  * @reject {Error} - The `error.message` contains information about why the promise was rejected
+  */
+  getItem(name, options = {}) {
+    var self = this;
+
+    var promise = new Promise(function(resolve, reject) {
+      var matches = self._getItemMatches(name, options);
+
+      if(matches.length === 0) {
+        reject(new Error('No item found for your query'));
+      } else {
+        resolve(matches);
+      }
+    });
+
+    return promise;
+  }
+
+  /*
+  * Iterates through every API type and returns the match after first match found
+  */
+  _getItemMatches(name, options = {}) {
+    var league = options.league || this.league;
+
+    if(this._hasDataForLeague(league)) {
+      for(var type in this.data[league]) {
+        var matches = this._getMatchesInType(type, name, options);
+
+        if(typeof matches !== 'undefined' && matches.length > 0) {
+          return matches;
+          break;
+        }
       }
     }
 
-    return match;
+    return [];
   }
 
-  // Returns the current dataset
-  NinjaAPI.prototype.get = function() {
-    return this.data;
+  /*
+  * Calls the corresponding functions for finding matches in items and currency
+  */
+  _getMatchesInType(type, name, options) {
+    var league = options.league || this.league;
+    var overview = this._getOverviewByType(type);
+
+    if(typeof overview !== 'undefined' && this._hasDataForTypeInLeague(type, league)) {
+      if(overview === 'item') {
+        return this._getItemMatchesInType(type, name, options);
+      } else {
+        return this._getCurrencyMatchesInType(type, name, options);
+      }
+    }
+
+    return [];
   }
 
-  // Returns details for a currency
-  NinjaAPI.prototype.getCurrencyDetails = function(name) {
-    if(this.data.hasOwnProperty('currencyDetails')) {
-      if(this.data.currencyDetails.hasOwnProperty(name)) {
-        return this.data.currencyDetails[name];
+  /*
+  * Gets item matches in a specific API type
+  */
+  _getItemMatchesInType(type, name, options) {
+    var league = options.league || this.league;
+    var links = options.links || 0;
+    var variant = options.variant || null;
+    var legacy = options.legacy || false;
+
+    // Match fitting items with filter()
+    var matches = this.data[league][type].filter(function (item) { return item.name == name });
+    matches = matches.filter(function (item) { return item.links == links });
+    matches = matches.filter(function (item) { return item.variant == variant });
+
+    if(legacy) {
+      matches = matches.filter(function (item) { return item.itemClass == 9 });
+    } else {
+      matches = matches.filter(function (item) { return item.itemClass != 9 });
+    }
+
+    return matches;
+  }
+
+  /*
+  * Gets currency matches in a specific API type
+  */
+  _getCurrencyMatchesInType(type, name, options) {
+    var league = options.league || this.league;
+
+    // Match fitting items with filter()
+    var matches = this.data[league][type].filter(function (item) { return item.currencyTypeName == name });
+
+    return matches;
+  }
+
+  /*
+  * Returns the overview that corresponds to the item API type
+  */
+  _getOverviewByType(type) {
+    var api = this.apis.filter(function (api) { return api.type == type });
+
+    if(api.length !== 0) {
+      return api[0].overview;
+    }
+
+    return undefined;
+  }
+
+  /**
+  * Returns an object containing details about a currency item.
+  * Returns an empty object if no data is available for the specified currency name.
+  *
+  * @param {string} name Name of the currency
+  * @returns {object}
+  */
+  getCurrencyDetails(name) {
+    name = name || '';
+
+    if(this.data.hasOwnProperty('CurrencyDetails')) {
+      var matches = this.data.CurrencyDetails.filter(function (item) { return item.name == name });
+
+      if(typeof matches !== 'undefined' && matches.length > 0) {
+        return matches[0];
       }
     }
     return {};
   }
 
-  // Returns true if there is data for league
-  NinjaAPI.prototype.hasDataForLeague = function(league) {
+  /**
+  * Returns an object containing the complete poe.ninja data.
+  * In order to receive anything, you must load or update before calling this method.
+  *
+  * @returns {object}
+  */
+  getData() {
+    return this.data;
+  }
+
+  /**
+  * Returns `true` if any poe.ninja data is available.
+  * This means that it has been loaded or updated before calling this method.
+  *
+  * @param {string} [league] By setting a league, `true` will be returned if there's data for this league
+  * @returns {boolean}
+  */
+  hasData(league) {
+    if(typeof league !== 'undefined') {
+      return this._hasDataForLeague(league);
+    }
+
+    return Object.keys(this.data).length !== 0;
+  }
+
+  /**
+  * Returns the league that is currently set as default.
+  *
+  * @returns {string}
+  */
+  getLeague() {
+    return this.league;
+  }
+
+  /**
+  * Sets a league as default.
+  *
+  * @param {string} league League that should be set as default
+  */
+  setLeague(league) {
+    if(league !== '' && typeof league !== 'undefined') {
+      this.league = league;
+    }
+  }
+
+  /*
+  * Returns true if there's any data for a specific league present
+  */
+  _hasDataForLeague(league) {
     if(this.data.hasOwnProperty(league)) {
       return true;
     }
     return false;
   }
 
-  // Returns all leagues, if not loaded try to load, if not loadable attempt to update
-  // This functions feels messy, but I can't be bothered to clean it up right now. It's a mostly useless feature anyways
-  NinjaAPI.prototype.getLeagues = function(callback) {
-    return this.leagues;
-  }
-
-  // Sets the league to use as default
-  NinjaAPI.prototype.setLeague = function(league) {
-    if(league !== "" && typeof league == "undefined") {
-      this.league = league;
+  /*
+  * Returns true if there's any data for a specific league present
+  */
+  _hasDataForTypeInLeague(type, league) {
+    if(this.data[league].hasOwnProperty(type)) {
+      return true;
     }
+    return false;
   }
 
-  // Updates the league from the official GGG API
-  NinjaAPI.prototype.updateLeagues = function(args, callback) {
-    callback = getCallback(args, callback);
-
-    var self = this;
-    if(args && typeof args !== 'function') {
-      var save = args.save || true;
+  /*
+  * Resets data for a specific league
+  */
+  _resetLeagueData(league) {
+    if(this.data.hasOwnProperty(league)) {
+      this.data[league] = {};
+      return true;
     }
-    request('http://api.pathofexile.com/leagues?type=main', {json: true}, function(err, res, body) {
-      if (err) { callback(err); return; }
-
-      var leaguesCount = 0;
-      // Iterate through each league
-      for(var i = 0; i < body.length; i++) {
-        var league = body[i];
-        var ssf = false;
-        leaguesCount++;
-
-        // Check if any rule indicates that this is an SSF league
-        if(league.rules.length > 0) {
-          for(var j = 0; j < league.rules.length; j++) {
-            if(league.rules[j].name === "Solo") {
-              ssf = true;
-            }
-          }
-        }
-
-        // Add league if it's not SSF
-        if(!ssf) {
-          self.leagues.push(league.id);
-        }
-
-        // When done with every league
-        if(leaguesCount === body.length) {
-          // Make sure at least one league got added
-          if(self.leagues.length > 0) {
-            if(save) {
-              self.saveLeagues(function(err, success) {
-                if(callback && typeof callback === 'function') {
-                  callback(null, {leagues: self.leagues, save: {success: success, error: err}});
-                }
-              });
-            } else {
-              if(callback && typeof callback === 'function') {
-                callback(null, {leagues: self.leagues, save: {success: false, error: null}});
-              }
-            }
-          } else {
-            var err = new Error('Couldn\'t update leagues, no leagues were present when fetching data from the API');
-            if(callback && typeof callback === 'function') {
-              callback(err, {leagues: self.leagues, save: {success: false, error: err}});
-            }
-          }
-        }
-      }
-    }.bind(self));
+    return false;
   }
 
-  // Loads previously saved dataset from cache file
-  NinjaAPI.prototype.load = function(callback) {
-    // Make this usable in readFile callback
+  /**
+  * Loads previously saved data from file.
+  *
+  * @returns {Promise}
+  * @fulfil {boolean} - `true` if the data was loaded successfully
+  * @reject {Error} - The `error.message` contains information about why the promise was rejected
+  */
+  load() {
+    return this._load(this.dataFile);
+  }
+
+  /*
+  * Loads previously saved data from file
+  */
+  _load(file) {
     var self = this;
 
-    fs.readFile(this.path + 'ninjaData.json', function(err, contents) {
-      if(err) {
-        if(callback && typeof callback === 'function') {
-          callback(err, false);
-        }
-        return;
-      }
+    var promise = new Promise(function(resolve, reject) {
+      fs.readFile(self.path + file, function(error, contents) {
+        if(error) { reject(error); return; }
 
-      self.data = JSON.parse(contents);
-      callback(null, true);
+        self.data = JSON.parse(contents);
+        resolve(true);
+      });
     });
+
+    return promise;
   }
 
-  // Saves current dataset to cache file
-  NinjaAPI.prototype.save = function(callback) {
-    fs.writeFile(this.path + 'ninjaData.json', JSON.stringify(this.data, null, 4), (err) => {
-      if (err) {
-        if(callback && typeof callback === 'function') {
-          callback(err, false);
-        }
-      }
-
-      if(callback && typeof callback === 'function') {
-        callback(null, true);
-      }
-    });
+  /**
+  * Saves the currently loaded or updated data to file.
+  *
+  * @returns {Promise}
+  * @fulfil {boolean} - `true` if the data was saved successfully
+  * @reject {Error} - The `error.message` contains information about why the promise was rejected
+  */
+  save() {
+    return this._save(this.dataFile, this.data);
   }
 
-  // Sometimes it's simply easier to copy + paste your own functions even though they're basically the exact same :o)
-  // Loads saved leagues from cache file
-  NinjaAPI.prototype.loadLeagues = function(callback) {
-    // Make this usable in readFile callback
+  /*
+  * Saves data to file
+  */
+  _save(file, data) {
     var self = this;
 
-    fs.readFile(this.path + 'leagues.json', function(err, contents) {
-      if(err) {
-        if(callback && typeof callback === 'function') {
-          callback(err, false);
-        }
-        return;
-      }
+    var promise = new Promise(function(resolve, reject) {
+      fs.writeFile(self.path + file, JSON.stringify(data, null, 4), (error) => {
+        if(error) { reject(error); return; }
 
-      self.leagues = JSON.parse(contents);
-      callback(null, true);
+        resolve(true);
+      });
     });
+
+    return promise;
   }
+}
 
-  // Saves current leagues to cache file
-  NinjaAPI.prototype.saveLeagues = function(callback) {
-    fs.writeFile(this.path + 'leagues.json', JSON.stringify(this.leagues, null, 4), (err) => {
-      if (err) {
-        if(callback && typeof callback === 'function') {
-          callback(err, false);
-        }
-      }
-
-      if(callback && typeof callback === 'function') {
-        callback(null, true);
-      }
-    });
-  }
-
-  module.exports = NinjaAPI;
+module.exports = NinjaAPI;

@@ -7,7 +7,7 @@
 
 - [Changelog](https://github.com/klayveR/poe-ninja-api-manager/blob/master/CHANGELOG.md)
 - [Getting Started](#getting-started)
-- [Methods](#methods)
+- [NinjaAPI](#NinjaAPI)
 
 ## Getting Started
 **Install with npm:**
@@ -15,120 +15,156 @@
 $ npm install poe-ninja-api-manager
 ```
 
-**Usage:**
+**Example usage:**
 ```javascript
-var NinjaAPI = require("poe-ninja-api-manager")
+var NinjaAPI = require('poe-ninja-api-manager')
 
-// Create a new api object and set default league to Incursion, don't load saved data on start
 var ninjaAPI = new NinjaAPI({
-    league: "Incursion",
-    loadOnStart: false
+  league: 'Standard'
 })
 
-// Update data and save it locally
-ninjaAPI.update({save: true}, function(err, data) {
-  if(err) { return console.log(err) }
-
-  console.log("Successful requests:", data.requests.success, "\nFailed requests:", data.requests.failed, "\nSuccessfully saved to file?", data.save.success ? "Yes" : "No")
-
-  // Get item by name and specify that it should be 6-linked and do something with that data
-  var item = ninjaAPI.getItem("Shavronne's Wrappings", {links: 6})
-  console.log("Shavronne's Wrappings (6-link) is worth " + item.chaosValue + " Chaos in Incursion league")
+// Update data, then save data, then get item data for Atziri's Splendour, 5 link, Energy Shield variant
+ninjaAPI.update()
+.then((requests) => {
+  console.log('Updated data, here are the requests:', requests);
+  return ninjaAPI.save();
 })
+.then((success) => {
+  console.log('Saved data', success);
+  return ninjaAPI.getItem('Atziri\'s Splendour', {links: 5, variant: "ES"});
+})
+.then((item) => {
+  console.log('An item matching the query was found', item);
+})
+.catch((err) => {
+  console.log(err);
+});
 ```
+<a name="NinjaAPI"></a>
 
-## Methods
+## NinjaAPI
+**Kind**: global class  
 
-### Constructor([options])
-- `options` - An optional object containing some of the following options
-    - `league` - Set the league you want to get data from
-    	- default: `Standard`
-    - `loadOnStart` - Loads previously saved data from a local file. The data will be loaded *synchronously*, so don't use this is you want to avoid blocking at the start of your application.
-      - default: `false`
-    - `path` - Path where the data should be saved and loaded from
-      - default: `./`
+* [NinjaAPI](#NinjaAPI)
+    * [new NinjaAPI([options])](#new_NinjaAPI_new)
+    * [.update([options])](#NinjaAPI+update) ⇒ <code>Promise</code>
+    * [.getItem(name, [options])](#NinjaAPI+getItem) ⇒ <code>Promise</code>
+    * [.getCurrencyDetails(name)](#NinjaAPI+getCurrencyDetails) ⇒ <code>object</code>
+    * [.getData()](#NinjaAPI+getData) ⇒ <code>object</code>
+    * [.hasData([league])](#NinjaAPI+hasData) ⇒ <code>boolean</code>
+    * [.getLeague()](#NinjaAPI+getLeague) ⇒ <code>string</code>
+    * [.setLeague(league)](#NinjaAPI+setLeague)
+    * [.load()](#NinjaAPI+load) ⇒ <code>Promise</code>
+    * [.save()](#NinjaAPI+save) ⇒ <code>Promise</code>
 
-Constructs a new `NinjaAPI`.
+<a name="new_NinjaAPI_new"></a>
 
-### update([options][, callback])
-- `options` - An optional object containing some of the following options
-    - `league` - Set a specific league you want to get data from, overrides the league set in the constructor
-    - `save` - Saves the data to a local file after the update finished
-      - default: `true`
-    - `delay` - Delay in ms after each API call
-      - default: `200`
-- `callback` - An optional callback called when the update finishes
-  - `error` - If something went wrong, throw this
-  - `data` - An object containing data about failed and completed requests and the save status
+### new NinjaAPI([options])
+Creates a new NinjaAPI object
 
-This method fetches all the data for a single league from poe.ninja.
 
-### get()
-Returns the full poe.ninja data object (obviously, you must load or update before to receive anything).
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  | An optional options object |
+| [options.league] | <code>string</code> | <code>&quot;Standard&quot;</code> | League that should be used as default |
+| [options.path] | <code>string</code> | <code>&quot;./&quot;</code> | Path where data should be saved |
+| [options.dataFile] | <code>string</code> | <code>&quot;ninjaData.json&quot;</code> | File in which data should be saved |
 
-### getItem(name[, options])
-- `name` - Name of the item
-- `options` - An optional object containing some of the following options
-    - `league` - Set a specific league you want to get the item from, overrides the league set in the constructor
-    - `links` - Links of the item (usually only used for body armours or weapons)
-      - Possible values: `0`, `5`, `6`, everything else will default to `0`
+<a name="NinjaAPI+update"></a>
 
-This method returns item information about any item which you could also find on poe.ninja.
-You must load or update data before calling this method in order to receive anything.
+### ninjaAPI.update([options]) ⇒ <code>Promise</code>
+Updates data from poe.ninja for a specific league.
 
-### get()
-Returns the full poe.ninja data object.
-You must load or update data before calling this method in order to receive anything.
+**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
+**Fulfil**: <code>Array</code> - An array containing a list of the successful requests  
+**Reject**: <code>Error</code> - The `error.message` contains information about why the promise was rejected  
 
-### getCurrencyDetails(name)
-- `name` - Name of the currency
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| [options] | <code>Object</code> |  | An optional options object |
+| [options.league] | <code>string</code> | <code>&quot;Standard&quot;</code> | League that should be updated |
+| [options.delay] | <code>string</code> | <code>200</code> | Delay between API calls |
 
-Returns details for the specified currency (such as the `icon` or `poeTradeId`)
-You must load or update data before calling this method in order to receive anything.
+<a name="NinjaAPI+getItem"></a>
 
-### save([callback])
-- `callback` - An optional callback
-  - `error` - If something went wrong, throw this
-  - `success` - `true` if data was successfully saved
+### ninjaAPI.getItem(name, [options]) ⇒ <code>Promise</code>
+Returns data for an item from the currently loaded poe.ninja data object.
+The optional options do no apply for currency items, except for `options.league`.
 
-Saves poe.ninja data to a local file, so it can be loaded at a later time.
+**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
+**Fulfil**: <code>Array</code> - An array containing the matching item as an object. If you receive multiple objects, please open an issue.  
+**Reject**: <code>Error</code> - The `error.message` contains information about why the promise was rejected  
 
-### load([callback])
-- `callback` - An optional callback
-  - `error` - If something went wrong, throw this
-  - `success` - `true` if data was successfully saved
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| name | <code>String</code> |  | Name of the item |
+| [options] | <code>Object</code> |  | An optional options object |
+| [options.league] | <code>string</code> | <code>&quot;Standard&quot;</code> | League that should be searched |
+| [options.links] | <code>string</code> | <code>0</code> | Links the item should have |
+| [options.variant] | <code>string</code> | <code>null</code> | Variant of the item |
+| [options.legacy] | <code>string</code> | <code>false</code> | Set to `true` for the legacy version of the item |
 
-Loads poe.ninja data from a local file.
+<a name="NinjaAPI+getCurrencyDetails"></a>
 
-### setLeague(league)
-- `league` - Change the league you want to get data from
+### ninjaAPI.getCurrencyDetails(name) ⇒ <code>object</code>
+Returns an object containing details about a currency item.
+Returns an empty object if no data is available for the specified currency name.
 
-Sets the league that should be used as default.
+**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
 
-### getLeagues()
-Returns an array containing every league that can have poe.ninja data.
-You must load or update leagues before calling this method in order to receive anything.
+| Param | Type | Description |
+| --- | --- | --- |
+| name | <code>string</code> | Name of the currency |
 
-### updateLeagues([options][, callback])
-- `options` - An optional object containing some of the following options
-    - `save` - Saves the data to a local file after the update finished
-      - default: `true`
-- `callback` - An optional callback called when the update finishes
-  - `error` - If something went wrong, throw this
-  - `data` - An object containing all the leagues in an array and the save status
+<a name="NinjaAPI+getData"></a>
 
-This method fetches all the leagues from the GGG API.
+### ninjaAPI.getData() ⇒ <code>object</code>
+Returns an object containing the complete poe.ninja data.
+In order to receive anything, you must load or update before calling this method.
 
-### saveLeagues([callback])
-- `callback` - An optional callback
-  - `error` - If something went wrong, throw this
-  - `success` - `true` if data was successfully saved
+**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
+<a name="NinjaAPI+hasData"></a>
 
-Saves league data to a local file, so they can be loaded at a later time.
+### ninjaAPI.hasData([league]) ⇒ <code>boolean</code>
+Returns `true` if any poe.ninja data is available.
+This means that it has been loaded or updated before calling this method.
 
-### loadLeagues([callback])
-- `callback` - An optional callback
-  - `error` - If something went wrong, throw this
-  - `success` - `true` if data was successfully saved
+**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
 
-Loads league data from a local file.
+| Param | Type | Description |
+| --- | --- | --- |
+| [league] | <code>string</code> | By setting a league, `true` will be returned if there's data for this league |
+
+<a name="NinjaAPI+getLeague"></a>
+
+### ninjaAPI.getLeague() ⇒ <code>string</code>
+Returns the league that is currently set as default.
+
+**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
+<a name="NinjaAPI+setLeague"></a>
+
+### ninjaAPI.setLeague(league)
+Sets a league as default.
+
+**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| league | <code>string</code> | League that should be set as default |
+
+<a name="NinjaAPI+load"></a>
+
+### ninjaAPI.load() ⇒ <code>Promise</code>
+Loads previously saved data from file.
+
+**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
+**Fulfil**: <code>boolean</code> - `true` if the data was loaded successfully  
+**Reject**: <code>Error</code> - The `error.message` contains information about why the promise was rejected  
+<a name="NinjaAPI+save"></a>
+
+### ninjaAPI.save() ⇒ <code>Promise</code>
+Saves the currently loaded or updated data to file.
+
+**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
+**Fulfil**: <code>boolean</code> - `true` if the data was saved successfully  
+**Reject**: <code>Error</code> - The `error.message` contains information about why the promise was rejected  
