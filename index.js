@@ -63,10 +63,10 @@ class NinjaAPI {
 
       Promise.all(promises)
       .then((result) => {
-        resolve(result);
+        return resolve(result);
       })
       .catch((error) => {
-        reject(error);
+        return reject(error);
       })
     });
 
@@ -87,8 +87,8 @@ class NinjaAPI {
         .then((data) => {
           return self._processApiData(data, api, league);
         })
-        .then((success) => {
-          resolve(new Request(api, league).get());
+        .then(() => {
+          return resolve(new Request(api, league).get());
         })
         .catch((error) => {
           reject(error);
@@ -103,8 +103,6 @@ class NinjaAPI {
   * Requests data from an API
   */
   _requestApiData(url) {
-    var self = this;
-
     var promise = new Promise(function(resolve, reject) {
       // Request the API
       request(url, {json: true}, function(error, response, contents) {
@@ -124,7 +122,7 @@ class NinjaAPI {
     var self = this;
 
     var promise = new Promise(function(resolve, reject) {
-      if(self._isValidNinjaApi(data)) {
+      if(Helpers.isValidNinjaApi(data)) {
         self._addItemsToData(data, league, api);
         self._updateCurrencyDetails(data);
 
@@ -157,7 +155,7 @@ class NinjaAPI {
   * Adds currency details to the data object if the data differs from the old data
   */
   _updateCurrencyDetails(data) {
-    if(this._hasCurrencyDetailsData(data)) {
+    if(Helpers.hasCurrencyDetailsData(data)) {
       this._addKeyToData('CurrencyDetails');
 
       // Check if the new currency details data is different from the saved one, if yes, overwrite
@@ -202,28 +200,6 @@ class NinjaAPI {
     return false
   }
 
-  /*
-  * Returns true if an API object is valid. For poe.ninja APIs, this is true if the object has the `lines` key
-  */
-  _isValidNinjaApi(obj) {
-    if(typeof obj !== 'undefined' && obj.hasOwnProperty('lines') && Object.keys(obj.lines).length !== 0) {
-      return true;
-    }
-
-    return false;
-  }
-
-  /*
-  * Returns true if an API object contains currency details
-  */
-  _hasCurrencyDetailsData(obj) {
-    if(typeof obj !== 'undefined' && obj.hasOwnProperty('currencyDetails') && Object.keys(obj.currencyDetails).length !== 0) {
-      return true;
-    }
-
-    return false;
-  }
-
   /**
   * Returns data for an item from the currently loaded poe.ninja data object.
   * The optional options do no apply for currency items, except for `options.league`.
@@ -266,7 +242,6 @@ class NinjaAPI {
 
         if(typeof matches !== 'undefined' && matches.length > 0) {
           return matches;
-          break;
         }
       }
     }
@@ -279,7 +254,7 @@ class NinjaAPI {
   */
   _getMatchesInType(type, name, options) {
     var league = options.league || this.league;
-    var overview = this._getOverviewByType(type);
+    var overview = Helpers.getOverviewByType(type, this.apis);
 
     if(typeof overview !== 'undefined' && this._hasDataForTypeInLeague(type, league)) {
       if(overview === 'item') {
@@ -302,14 +277,14 @@ class NinjaAPI {
     var legacy = options.legacy || false;
 
     // Match fitting items with filter()
-    var matches = this.data[league][type].filter(function (item) { return item.name == name });
-    matches = matches.filter(function (item) { return item.links == links });
-    matches = matches.filter(function (item) { return item.variant == variant });
+    var matches = this.data[league][type].filter(function (item) { return item.name === name });
+    matches = matches.filter(function (item) { return item.links === links });
+    matches = matches.filter(function (item) { return item.variant === variant });
 
     if(legacy) {
-      matches = matches.filter(function (item) { return item.itemClass == 9 });
+      matches = matches.filter(function (item) { return item.itemClass === 9 });
     } else {
-      matches = matches.filter(function (item) { return item.itemClass != 9 });
+      matches = matches.filter(function (item) { return item.itemClass !== 9 });
     }
 
     return matches;
@@ -322,22 +297,9 @@ class NinjaAPI {
     var league = options.league || this.league;
 
     // Match fitting items with filter()
-    var matches = this.data[league][type].filter(function (item) { return item.currencyTypeName == name });
+    var matches = this.data[league][type].filter(function (item) { return item.currencyTypeName === name });
 
     return matches;
-  }
-
-  /*
-  * Returns the overview that corresponds to the item API type
-  */
-  _getOverviewByType(type) {
-    var api = this.apis.filter(function (api) { return api.type == type });
-
-    if(api.length !== 0) {
-      return api[0].overview;
-    }
-
-    return undefined;
   }
 
   /**
@@ -351,7 +313,7 @@ class NinjaAPI {
     name = name || '';
 
     if(this.data.hasOwnProperty('CurrencyDetails')) {
-      var matches = this.data.CurrencyDetails.filter(function (item) { return item.name == name });
+      var matches = this.data.CurrencyDetails.filter(function (item) { return item.name === name });
 
       if(typeof matches !== 'undefined' && matches.length > 0) {
         return matches[0];
@@ -444,17 +406,10 @@ class NinjaAPI {
   * @reject {Error} - The `error.message` contains information about why the promise was rejected
   */
   load() {
-    return this._load(this.dataFile);
-  }
-
-  /*
-  * Loads previously saved data from file
-  */
-  _load(file) {
     var self = this;
 
     var promise = new Promise(function(resolve, reject) {
-      fs.readFile(self.path + file, function(error, contents) {
+      fs.readFile(self.path + self.dataFile, function(error, contents) {
         if(error) { reject(error); return; }
 
         self.data = JSON.parse(contents);
@@ -473,24 +428,15 @@ class NinjaAPI {
   * @reject {Error} - The `error.message` contains information about why the promise was rejected
   */
   save() {
-    return this._save(this.dataFile, this.data);
-  }
-
-  /*
-  * Saves data to file
-  */
-  _save(file, data) {
     var self = this;
 
     var promise = new Promise(function(resolve, reject) {
-      fs.writeFile(self.path + file, JSON.stringify(data, null, 4), (error) => {
+      fs.writeFile(self.path + self.dataFile, JSON.stringify(self.data, null, 4), (error) => {
         if(error) { reject(error); return; }
 
         resolve(true);
       });
     });
-
-    return promise;
   }
 }
 

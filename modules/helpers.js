@@ -31,6 +31,44 @@ class Helpers {
   static buildApiUrl(overview, type, league) {
     return 'http://poe.ninja/api/data/' + overview + 'overview?league=' + league + '&type=' + type;
   }
+
+  /*
+  * Returns true if the object has the property and is not empty
+  */
+  static hasPropertyWithData(obj, prop) {
+    if(typeof obj !== 'undefined' && obj.hasOwnProperty(prop) && Object.keys(obj[prop]).length !== 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /*
+  * Returns the overview that corresponds to the item API type
+  */
+  static getOverviewByType(type, apis) {
+    var api = apis.filter(function (api) { return api.type === type });
+
+    if(api.length !== 0) {
+      return api[0].overview;
+    }
+
+    return undefined;
+  }
+
+  /*
+  * Returns true if an API object is valid. For poe.ninja APIs, this is true if the object has the `lines` key
+  */
+  static isValidNinjaApi(obj) {
+    return Helpers.hasPropertyWithData(obj, 'lines');
+  }
+
+  /*
+  * Returns true if an API object contains currency details
+  */
+  static hasCurrencyDetailsData(obj) {
+    return Helpers.hasPropertyWithData(obj, 'currencyDetails');
+  }
 }
 
 module.exports = Helpers;
