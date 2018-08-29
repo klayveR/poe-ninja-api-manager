@@ -1,4 +1,4 @@
-const Helpers = require('./helpers.js');
+const Helpers = require("./helpers.js");
 
 /*
 / This used to be a requests manager, now it doesn't do much anymore
@@ -18,7 +18,7 @@ class Request {
       url: Helpers.buildApiUrl(this.api.overview, this.api.type, this.league),
       type: this.api.type,
       league: this.league
-    }
+    };
   }
 }
 

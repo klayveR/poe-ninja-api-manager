@@ -1,8 +1,8 @@
-const request = require('request-promise-native');
-const fs = require('fs');
+const request = require("request-promise-native");
+const fs = require("fs");
 
-const Helpers = require('./modules/helpers.js');
-const Request = require('./modules/request.js');
+const Helpers = require("./modules/helpers.js");
+const Request = require("./modules/request.js");
 
 class NinjaAPI {
   /**
@@ -17,25 +17,25 @@ class NinjaAPI {
   constructor(options) {
     options = options || {};
 
-    this.league = options.league || 'Standard';
-    this.path = options.path || './';
-    this.dataFile = options.dataFile || 'ninjaData.json'
+    this.league = options.league || "Standard";
+    this.path = options.path || "./";
+    this.dataFile = options.dataFile || "ninjaData.json";
 
     this.data = {};
     this.apis = [
-      {overview: 'currency', type: 'Currency'},
-      {overview: 'currency', type: 'Fragment'},
-      {overview: 'item', type: 'DivinationCard'},
-      {overview: 'item', type: 'Prophecy'},
-      {overview: 'item', type: 'SkillGem'},
-      {overview: 'item', type: 'Essence'},
-      {overview: 'item', type: 'UniqueMap'},
-      {overview: 'item', type: 'Map'},
-      {overview: 'item', type: 'UniqueJewel'},
-      {overview: 'item', type: 'UniqueFlask'},
-      {overview: 'item', type: 'UniqueWeapon'},
-      {overview: 'item', type: 'UniqueArmour'},
-      {overview: 'item', type: 'UniqueAccessory'},
+      {overview: "currency", type: "Currency"},
+      {overview: "currency", type: "Fragment"},
+      {overview: "item", type: "DivinationCard"},
+      {overview: "item", type: "Prophecy"},
+      {overview: "item", type: "SkillGem"},
+      {overview: "item", type: "Essence"},
+      {overview: "item", type: "UniqueMap"},
+      {overview: "item", type: "Map"},
+      {overview: "item", type: "UniqueJewel"},
+      {overview: "item", type: "UniqueFlask"},
+      {overview: "item", type: "UniqueWeapon"},
+      {overview: "item", type: "UniqueArmour"},
+      {overview: "item", type: "UniqueAccessory"},
     ];
   }
 
@@ -64,11 +64,11 @@ class NinjaAPI {
       Promise.all(promises)
       .then((result) => {
         self._storeApiData(result);
-        resolve(result)
+        resolve(result);
       })
       .catch((error) => {
         return reject(error);
-      })
+      });
     });
   }
 
@@ -106,7 +106,7 @@ class NinjaAPI {
 
       resolve(result);
     } else {
-      reject(new Error('The data from the requested ' + data.api.type + ' API (League: ' + data.league + ') could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure'));
+      reject(new Error("The data from the requested " + data.api.type + " API (League: " + data.league + ") could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure"));
     }
   }
 
@@ -142,7 +142,7 @@ class NinjaAPI {
   */
   _updateCurrencyDetails(data) {
     if(Helpers.hasCurrencyDetailsData(data)) {
-      this._addKeyToData('CurrencyDetails');
+      this._addKeyToData("CurrencyDetails");
 
       // Check if the new currency details data is different from the saved one, if yes, overwrite
       if(!Helpers.isSameObject(this.data.CurrencyDetails, data.currencyDetails)) {
@@ -207,7 +207,7 @@ class NinjaAPI {
       var matches = self._getItemMatches(name, options);
 
       if(matches.length === 0) {
-        reject(new Error('No item found for your query'));
+        reject(new Error("No item found for your query"));
       } else {
         resolve(matches);
       }
@@ -224,7 +224,7 @@ class NinjaAPI {
       for(var type in this.data[league]) {
         var matches = this._getMatchesInType(type, name, options);
 
-        if(typeof matches !== 'undefined' && matches.length > 0) {
+        if(typeof matches !== "undefined" && matches.length > 0) {
           return matches;
         }
       }
@@ -240,8 +240,8 @@ class NinjaAPI {
     var league = options.league || this.league;
     var overview = Helpers.getOverviewByType(type, this.apis);
 
-    if(typeof overview !== 'undefined' && this._hasDataForTypeInLeague(type, league)) {
-      if(overview === 'item') {
+    if(typeof overview !== "undefined" && this._hasDataForTypeInLeague(type, league)) {
+      if(overview === "item") {
         return this._getItemMatchesInType(type, name, options);
       } else {
         return this._getCurrencyMatchesInType(type, name, options);
@@ -261,14 +261,14 @@ class NinjaAPI {
     var legacy = options.legacy || false;
 
     // Match fitting items with filter()
-    var matches = this.data[league][type].filter(function (item) { return item.name === name });
-    matches = matches.filter(function (item) { return item.links === links });
-    matches = matches.filter(function (item) { return item.variant === variant });
+    var matches = this.data[league][type].filter(function (item) { return item.name === name; });
+    matches = matches.filter(function (item) { return item.links === links; });
+    matches = matches.filter(function (item) { return item.variant === variant; });
 
     if(legacy) {
-      matches = matches.filter(function (item) { return item.itemClass === 9 });
+      matches = matches.filter(function (item) { return item.itemClass === 9; });
     } else {
-      matches = matches.filter(function (item) { return item.itemClass !== 9 });
+      matches = matches.filter(function (item) { return item.itemClass !== 9; });
     }
 
     return matches;
@@ -281,7 +281,7 @@ class NinjaAPI {
     var league = options.league || this.league;
 
     // Match fitting items with filter()
-    var matches = this.data[league][type].filter(function (item) { return item.currencyTypeName === name });
+    var matches = this.data[league][type].filter(function (item) { return item.currencyTypeName === name; });
 
     return matches;
   }
@@ -294,12 +294,12 @@ class NinjaAPI {
   * @returns {object}
   */
   getCurrencyDetails(name) {
-    name = name || '';
+    name = name || "";
 
-    if(this.data.hasOwnProperty('CurrencyDetails')) {
+    if(this.data.hasOwnProperty("CurrencyDetails")) {
       var matches = this.data.CurrencyDetails.filter(function (item) { return item.name === name });
 
-      if(typeof matches !== 'undefined' && matches.length > 0) {
+      if(typeof matches !== "undefined" && matches.length > 0) {
         return matches[0];
       }
     }
@@ -320,11 +320,11 @@ class NinjaAPI {
   * Returns `true` if any poe.ninja data is available.
   * This means that it has been loaded or updated before calling this method.
   *
-  * @param {string} [league] By setting a league, `true` will be returned if there's data for this league
+  * @param {string} [league] By setting a league, `true` will be returned if there"s data for this league
   * @returns {boolean}
   */
   hasData(league) {
-    if(typeof league !== 'undefined') {
+    if(typeof league !== "undefined") {
       return this._hasDataForLeague(league);
     }
 
@@ -346,13 +346,13 @@ class NinjaAPI {
   * @param {string} league League that should be set as default
   */
   setLeague(league) {
-    if(league !== '' && typeof league !== 'undefined') {
+    if(league !== "" && typeof league !== "undefined") {
       this.league = league;
     }
   }
 
   /*
-  * Returns true if there's any data for a specific league present
+  * Returns true if there"s any data for a specific league present
   */
   _hasDataForLeague(league) {
     if(this.data.hasOwnProperty(league)) {
@@ -362,7 +362,7 @@ class NinjaAPI {
   }
 
   /*
-  * Returns true if there's any data for a specific league present
+  * Returns true if there"s any data for a specific league present
   */
   _hasDataForTypeInLeague(type, league) {
     if(this.data[league].hasOwnProperty(type)) {
