@@ -88,7 +88,7 @@ class NinjaAPI {
         })
         .catch((error) => {
           return reject(error);
-        })
+        });
       }, delay);
     });
   }
@@ -100,9 +100,9 @@ class NinjaAPI {
     if(Helpers.isValidNinjaApi(contents)) {
       var result = {
         data: contents,
-        api: api,
-        league: league
-      }
+        api,
+        league
+      };
 
       resolve(result);
     } else {
@@ -235,7 +235,7 @@ class NinjaAPI {
 
   /*
   * Calls the corresponding functions for finding matches in items and currency
-  */
+  */league:
   _getMatchesInType(type, name, options) {
     var league = options.league || this.league;
     var overview = Helpers.getOverviewByType(type, this.apis);
@@ -297,7 +297,7 @@ class NinjaAPI {
     name = name || "";
 
     if(this.data.hasOwnProperty("CurrencyDetails")) {
-      var matches = this.data.CurrencyDetails.filter(function (item) { return item.name === name });
+      var matches = this.data.CurrencyDetails.filter(function (item) { return item.name === name; });
 
       if(typeof matches !== "undefined" && matches.length > 0) {
         return matches[0];
