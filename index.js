@@ -1,4 +1,4 @@
-const request = require('request');
+const request = require('request-promise-native');
 const fs = require('fs');
 
 const Helpers = require('./modules/helpers.js');
@@ -76,28 +76,38 @@ class NinjaAPI {
   * Requests data from an API
   */
   _requestApiData(api, league, delay) {
+    var self = this;
     var url = Helpers.buildApiUrl(api.overview, api.type, league);
 
     return new Promise(function(resolve, reject) {
       // Request the API
       setTimeout(function() {
-        request(url, {json: true}, function(error, response, contents) {
-          if(Helpers.isValidNinjaApi(contents)) {
-            var result = {
-              data: contents,
-              api: api,
-              league: league
-            }
-
-            resolve(result);
-          } else if(error) {
-            reject(error);
-          } else {
-            reject(new Error('The data from the requested ' + data.api.type + ' API (League: ' + data.league + ') could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure'));
-          }
-        });
-      });
+        request({uri: url, json: true})
+        .then((contents) => {
+          return self._processRequest(contents, api, league, resolve, reject);
+        })
+        .catch((error) => {
+          return reject(error);
+        })
+      }, delay);
     });
+  }
+
+  /*
+  * Processes a request
+  */
+  _processRequest(contents, api, league, resolve, reject) {
+    if(Helpers.isValidNinjaApi(contents)) {
+      var result = {
+        data: contents,
+        api: api,
+        league: league
+      }
+
+      resolve(result);
+    } else {
+      reject(new Error('The data from the requested ' + data.api.type + ' API (League: ' + data.league + ') could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure'));
+    }
   }
 
   /*
