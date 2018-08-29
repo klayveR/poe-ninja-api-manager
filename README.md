@@ -89,6 +89,7 @@ Updates data from poe.ninja for a specific league.
 
 ### ninjaAPI.getItem(name, [options]) ⇒ <code>Promise</code>
 Returns data for an item from the currently loaded poe.ninja data object.
+The returned item object is the same you'd receive from poe.ninja, but it has an additional property `apiType`.
 The optional options do no apply for currency items, except for `options.league`.
 
 **Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  

@@ -187,6 +187,7 @@ class NinjaAPI {
 
   /**
   * Returns data for an item from the currently loaded poe.ninja data object.
+  * The returned item object is the same you'd receive from poe.ninja, but it has an additional property `apiType`.
   * The optional options do no apply for currency items, except for `options.league`.
   *
   * @param {String} name Name of the item
@@ -331,7 +332,7 @@ class NinjaAPI {
   * Returns `true` if any poe.ninja data is available.
   * This means that it has been loaded or updated before calling this method.
   *
-  * @param {string} [league] By setting a league, `true` will be returned if there"s data for this league
+  * @param {string} [league] By setting a league, `true` will be returned if there's data for this league
   * @returns {boolean}
   */
   hasData(league) {
