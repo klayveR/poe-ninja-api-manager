@@ -106,7 +106,7 @@ class NinjaAPI {
 
       resolve(result);
     } else {
-      reject(new Error("The data from the requested " + data.api.type + " API (League: " + data.league + ") could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure"));
+      reject(new Error("The data from the requested " + api.type + " API (League: " + league + ") could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure"));
     }
   }
 
