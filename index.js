@@ -163,6 +163,8 @@ class NinjaAPI {
         this.data.CurrencyDetails = data.currencyDetails;
       }
     }
+
+    return;
   }
 
   /*
@@ -174,6 +176,8 @@ class NinjaAPI {
     this._addKeyToLeagueData(league, api.type);
 
     this.data[league][api.type] = data.lines;
+
+    return;
   }
 
   /*
@@ -185,7 +189,7 @@ class NinjaAPI {
       return true;
     }
 
-    return false
+    return false;
   }
 
   /*
@@ -197,7 +201,7 @@ class NinjaAPI {
       return true;
     }
 
-    return false
+    return false;
   }
 
   /**
@@ -437,6 +441,8 @@ class NinjaAPI {
         resolve(true);
       });
     });
+
+    return promise;
   }
 }
 
