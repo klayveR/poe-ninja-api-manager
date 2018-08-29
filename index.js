@@ -46,7 +46,7 @@ class NinjaAPI {
   * @param {string} [options.league=Standard] League that should be updated
   * @param {string} [options.delay=200] Delay between API calls
   * @returns {Promise}
-  * @fulfil {Array} - An array containing a list of the successful requests
+  * @fulfil {Array} - An array of objects containing the requested data of each API
   * @reject {Error} - The `error.message` contains information about why the promise was rejected
   */
   update(options) {
@@ -59,11 +59,12 @@ class NinjaAPI {
     this._resetLeagueData(league);
 
     return new Promise(function(resolve, reject) {
-      var promises = self._getUpdateCallsArray(league, delay);
+      var promises = self._getRequestCallsArray(league, delay);
 
       Promise.all(promises)
       .then((result) => {
-        return resolve(result);
+        self._storeApiData(result);
+        resolve(result)
       })
       .catch((error) => {
         return reject(error);
@@ -72,41 +73,29 @@ class NinjaAPI {
   }
 
   /*
-  * Updates an API of a certain overview and type
+  * Requests data from an API
   */
-  _updateApi(api, league, delay = 0) {
-    var self = this;
+  _requestApiData(api, league, delay) {
     var url = Helpers.buildApiUrl(api.overview, api.type, league);
 
     return new Promise(function(resolve, reject) {
-      // Wait delay ms, request API data, process data, return promise
-      setTimeout(function() {
-        self._requestApiData(url)
-        .then((data) => {
-          return self._storeApiData(data, api, league);
-        })
-        .then(() => {
-          return resolve(new Request(api, league).get());
-        })
-        .catch((error) => {
-          reject(error);
-        });
-      }, delay);
-    });
-  }
-
-  /*
-  * Requests data from an API
-  */
-  _requestApiData(url) {
-    return new Promise(function(resolve, reject) {
       // Request the API
-      request(url, {json: true}, function(error, response, contents) {
-        if(error) {
-          reject(error);
-        } else {
-          resolve(contents);
-        }
+      setTimeout(function() {
+        request(url, {json: true}, function(error, response, contents) {
+          if(Helpers.isValidNinjaApi(contents)) {
+            var result = {
+              data: contents,
+              api: api,
+              league: league
+            }
+
+            resolve(result);
+          } else if(error) {
+            reject(error);
+          } else {
+            reject(new Error('The data from the requested ' + data.api.type + ' API (League: ' + data.league + ') could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure'));
+          }
+        });
       });
     });
   }
@@ -114,30 +103,23 @@ class NinjaAPI {
   /*
   * Processes the data from an API
   */
-  _storeApiData(data, api, league) {
-    var self = this;
-
-    return new Promise(function(resolve, reject) {
-      if(Helpers.isValidNinjaApi(data)) {
-        self._addItemsToData(data, league, api);
-        self._updateCurrencyDetails(data);
-
-        resolve(true);
-      } else {
-        reject(new Error('The data from the requested ' + api.type + ' API (League: ' + league + ') could not be processed because the format is invalid or the response is empty. Possible reasons: 1) Invalid league name, 2) poe.ninja is down, 3) poe.ninja changed their API structure'));
-      }
-    });
+  _storeApiData(result) {
+    for(var index in result) {
+      var data = result[index];
+      this._addItemsToData(data.data, data.league, data.api);
+      this._updateCurrencyDetails(data.data);
+    }
   }
 
   /*
   * Returns an array of functions containing calls to every API update
   */
-  _getUpdateCallsArray(league, delay) {
+  _getRequestCallsArray(league, delay) {
     var promises = [];
 
     for(var i = 0; i < this.apis.length; i++) {
       var api = this.apis[i];
-      var method = this._updateApi(api, league, delay * i).then((result) => ({ request: result }));
+      var method = this._requestApiData(api, league, delay * i);
 
       promises.push(method);
     }

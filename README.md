@@ -25,8 +25,8 @@ var ninjaAPI = new NinjaAPI({
 
 // Update data, then save data, then get item data for Atziri's Splendour, 5 link, Energy Shield variant
 ninjaAPI.update()
-.then((requests) => {
-  console.log('Updated data, here are the requests:', requests);
+.then((result) => {
+  console.log('Updated data, here are the results of the requests:', result);
   return ninjaAPI.save();
 })
 .then((success) => {
@@ -76,7 +76,7 @@ Creates a new NinjaAPI object
 Updates data from poe.ninja for a specific league.
 
 **Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
-**Fulfil**: <code>Array</code> - An array containing a list of the successful requests  
+**Fulfil**: <code>Array</code> - An array of objects containing the requested data of each API  
 **Reject**: <code>Error</code> - The `error.message` contains information about why the promise was rejected  
 
 | Param | Type | Default | Description |
