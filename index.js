@@ -261,15 +261,13 @@ class NinjaAPI {
     var legacy = options.legacy || false;
 
     // Match fitting items with filter()
-    var matches = this.data[league][type].filter(function (item) { return item.name === name; });
-    matches = matches.filter(function (item) { return item.links === links; });
-    matches = matches.filter(function (item) { return item.variant === variant; });
-
-    if(legacy) {
-      matches = matches.filter(function (item) { return item.itemClass === 9; });
-    } else {
-      matches = matches.filter(function (item) { return item.itemClass !== 9; });
-    }
+    var matches = this.data[league][type].filter(function(item) {
+      return (item.name == name
+        && item.links == links
+        && item.variant == variant
+        && ((legacy && item.itemClass === 9)
+          || (!legacy && item.itemClass !== 9)));
+    })
 
     return matches;
   }
@@ -281,7 +279,9 @@ class NinjaAPI {
     var league = options.league || this.league;
 
     // Match fitting items with filter()
-    var matches = this.data[league][type].filter(function (item) { return item.currencyTypeName === name; });
+    var matches = this.data[league][type].filter(function(item) {
+      return (item.currencyTypeName === name);
+    });
 
     return matches;
   }
