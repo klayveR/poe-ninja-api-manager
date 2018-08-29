@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - The `_getItemMatchesInType()` method now only filters once instead of multiple times
 - The item object received from the `getItem()` method now contains an additional `apiType` property again
 
+### Removed
+- Removed `requests.js` as it's finally no longer in use
+
 ## [0.4.3] - 2018-08-29
 ### Fixed
 - Fixed a promise reject with undefined variables

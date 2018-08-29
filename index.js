@@ -2,7 +2,6 @@ const request = require("request-promise-native");
 const fs = require("fs");
 
 const Helpers = require("./modules/helpers.js");
-const Request = require("./modules/request.js");
 
 class NinjaAPI {
   /**
@@ -64,7 +63,7 @@ class NinjaAPI {
       Promise.all(promises)
       .then((result) => {
         self._storeApiData(result);
-        resolve(result);
+        return resolve(result);
       })
       .catch((error) => {
         return reject(error);
@@ -239,7 +238,7 @@ class NinjaAPI {
   */
   _addApiTypeToMatches(type, matches = []) {
     for(var i = 0; i < matches.length; i++) {
-      matches[i]['apiType'] = type;
+      matches[i]["apiType"] = type;
     }
 
     return matches;
