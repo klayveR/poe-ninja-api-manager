@@ -114,8 +114,8 @@ class NinjaAPI {
   * Processes the data from an API
   */
   _storeApiData(result) {
-    for(var index in result) {
-      var data = result[index];
+    for(var i = 0; i < result.length; i++) {
+      var data = result[i];
       this._addItemsToData(data.data, data.league, data.api);
       this._updateCurrencyDetails(data.data);
     }
@@ -225,12 +225,24 @@ class NinjaAPI {
         var matches = this._getMatchesInType(type, name, options);
 
         if(typeof matches !== "undefined" && matches.length > 0) {
+          matches = this._addApiTypeToMatches(type, matches);
           return matches;
         }
       }
     }
 
     return [];
+  }
+
+  /*
+  * Adds the API type to matches and returns the adjusted matches array
+  */
+  _addApiTypeToMatches(type, matches = []) {
+    for(var i = 0; i < matches.length; i++) {
+      matches[i]['apiType'] = type;
+    }
+
+    return matches;
   }
 
   /*
@@ -262,12 +274,12 @@ class NinjaAPI {
 
     // Match fitting items with filter()
     var matches = this.data[league][type].filter(function(item) {
-      return (item.name == name
-        && item.links == links
-        && item.variant == variant
+      return (item.name === name
+        && item.links === links
+        && item.variant === variant
         && ((legacy && item.itemClass === 9)
           || (!legacy && item.itemClass !== 9)));
-    })
+    });
 
     return matches;
   }

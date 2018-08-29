@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [0.4.4] - 2018-08-29
 ### Changed
 - The `_getItemMatchesInType()` method now only filters once instead of multiple times
+- The item object received from the `getItem()` method now contains an additional `apiType` property again
 
 ## [0.4.3] - 2018-08-29
 ### Fixed
