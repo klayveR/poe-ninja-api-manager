@@ -58,7 +58,7 @@ class NinjaAPI {
 
     this._resetLeagueData(league);
 
-    return promise = new Promise(function(resolve, reject) {
+    return new Promise(function(resolve, reject) {
       var promises = self._getUpdateCallsArray(league, delay);
 
       Promise.all(promises)
