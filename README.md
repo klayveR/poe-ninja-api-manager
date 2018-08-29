@@ -17,24 +17,24 @@ $ npm install poe-ninja-api-manager
 
 **Example usage:**
 ```javascript
-var NinjaAPI = require('poe-ninja-api-manager')
+var NinjaAPI = require("poe-ninja-api-manager");
 
 var ninjaAPI = new NinjaAPI({
-  league: 'Standard'
-})
+  league: "Standard"
+});
 
-// Update data, then save data, then get item data for Atziri's Splendour, 5 link, Energy Shield variant
+// Update data, then save data, then get item data for Atziri"s Splendour, 5 link, Energy Shield variant
 ninjaAPI.update()
 .then((result) => {
-  console.log('Updated data, here are the results of the requests:', result);
+  console.log("Updated data, here are the results of the requests:", result);
   return ninjaAPI.save();
 })
 .then((success) => {
-  console.log('Saved data', success);
-  return ninjaAPI.getItem('Atziri\'s Splendour', {links: 5, variant: "ES"});
+  console.log("Saved data", success);
+  return ninjaAPI.getItem("Atziri's Splendour", {links: 5, variant: "ES"});
 })
 .then((item) => {
-  console.log('An item matching the query was found', item);
+  return console.log("An item matching the query was found", item);
 })
 .catch((err) => {
   console.log(err);
