@@ -235,7 +235,7 @@ class NinjaAPI {
 
   /*
   * Calls the corresponding functions for finding matches in items and currency
-  */league:
+  */
   _getMatchesInType(type, name, options) {
     var league = options.league || this.league;
     var overview = Helpers.getOverviewByType(type, this.apis);
