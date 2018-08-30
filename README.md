@@ -117,13 +117,6 @@ Returns an empty object if no data is available for the specified currency name.
 | --- | --- | --- |
 | name | <code>string</code> | Name of the currency |
 
-<a name="NinjaAPI+getData"></a>
-
-### ninjaAPI.getData() ⇒ <code>object</code>
-Returns an object containing the complete poe.ninja data.
-In order to receive anything, you must load or update before calling this method.
-
-**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
 <a name="NinjaAPI+hasData"></a>
 
 ### ninjaAPI.hasData([league]) ⇒ <code>boolean</code>

@@ -310,16 +310,6 @@ class NinjaAPI {
   }
 
   /**
-  * Returns an object containing the complete poe.ninja data.
-  * In order to receive anything, you must load or update before calling this method.
-  *
-  * @returns {object}
-  */
-  getData() {
-    return this.data;
-  }
-
-  /**
   * Returns `true` if any poe.ninja data is available.
   * This means that it has been loaded or updated before calling this method.
   *
