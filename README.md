@@ -50,7 +50,7 @@ ninjaAPI.update()
     * [.update([options])](#NinjaAPI+update) ⇒ <code>Promise</code>
     * [.getItem(name, [options])](#NinjaAPI+getItem) ⇒ <code>Promise</code>
     * [.getCurrencyDetails(name)](#NinjaAPI+getCurrencyDetails) ⇒ <code>object</code>
-    * [.getData()](#NinjaAPI+getData) ⇒ <code>object</code>
+    * [.hasData([league])](#NinjaAPI+hasData) ⇒ <code>boolean</code>
     * [.getLeague()](#NinjaAPI+getLeague) ⇒ <code>string</code>
     * [.setLeague(league)](#NinjaAPI+setLeague)
     * [.load()](#NinjaAPI+load) ⇒ <code>Promise</code>
