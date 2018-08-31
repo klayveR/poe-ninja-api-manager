@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] - 2018-09-01
+### Changed
+- If the requested poe.ninja API was valid but empty, the `update()` promise will no longer reject and throw an error. This was changed to not throw an error, because at league start some APIs (such as map APIs) can be empty, while others are starting to fill. The map data will simply remain empty until another update has data for this API.
+
 ## [0.6.0] - 2018-08-31
 ### Changed
 - The `legacy` options of the `getItem()` options has been renamed to `relic` to avoid confusion
@@ -115,6 +119,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release
 
+[0.6.1]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.1
 [0.6.0]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.0
 [0.5.0]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.5.0
 [0.4.4]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.4.4

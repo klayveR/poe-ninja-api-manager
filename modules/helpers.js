@@ -44,6 +44,17 @@ class Helpers {
   }
 
   /*
+  * Returns true if the object has the property, can be empty
+  */
+  static hasProperty(obj, prop) {
+    if(typeof obj !== "undefined" && obj.hasOwnProperty(prop)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /*
   * Returns the overview that corresponds to the item API type
   */
   static getOverviewByType(type, apis) {
@@ -60,7 +71,7 @@ class Helpers {
   * Returns true if an API object is valid. For poe.ninja APIs, this is true if the object has the `lines` key
   */
   static isValidNinjaApi(obj) {
-    return Helpers.hasPropertyWithData(obj, "lines");
+    return Helpers.hasProperty(obj, "lines");
   }
 
   /*
@@ -75,7 +86,7 @@ class Helpers {
   */
   static addApiTypeToMatches(type, matches) {
     matches = matches || [];
-    
+
     for(var i = 0; i < matches.length; i++) {
       matches[i]["apiType"] = type;
     }
