@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2018-08-31
+### Changed
+- The `legacy` options of the `getItem()` options has been renamed to `relic` to avoid confusion
+
 ## [0.5.0] - 2018-08-30
 ### Removed
 - Removed the `getData()` method because I felt it was unnecessary. If you want to get the full data object, simply require the saved file in your project.
@@ -111,6 +115,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release
 
+[0.6.0]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.0
 [0.5.0]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.5.0
 [0.4.4]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.4.4
 [0.4.3]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.4.3

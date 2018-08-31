@@ -195,7 +195,7 @@ class NinjaAPI {
   * @param {string} [options.league=Standard] League that should be searched
   * @param {string} [options.links=0] Links the item should have
   * @param {string} [options.variant=null] Variant of the item
-  * @param {string} [options.legacy=false] Set to `true` for the legacy version of the item
+  * @param {string} [options.relic=false] Set to `true` for the relic version of the item
   * @returns {Promise}
   * @fulfil {Array} - An array containing the matching item as an object. If you receive multiple objects, please open an issue.
   * @reject {Error} - The `error.message` contains information about why the promise was rejected
@@ -261,15 +261,15 @@ class NinjaAPI {
     var league = options.league || this.league;
     var links = options.links || 0;
     var variant = options.variant || null;
-    var legacy = options.legacy || false;
+    var relic = options.relic || false;
 
     // Match fitting items with filter()
     var matches = this.data[league][type].filter(function(item) {
       return (item.name === name
         && item.links === links
         && item.variant === variant
-        && ((legacy && item.itemClass === 9)
-          || (!legacy && item.itemClass !== 9)));
+        && ((relic && item.itemClass === 9)
+          || (!relic && item.itemClass !== 9)));
     });
 
     return matches;

@@ -102,7 +102,7 @@ The optional options do no apply for currency items, except for `options.league`
 | [options.league] | <code>string</code> | <code>&quot;Standard&quot;</code> | League that should be searched |
 | [options.links] | <code>string</code> | <code>0</code> | Links the item should have |
 | [options.variant] | <code>string</code> | <code>null</code> | Variant of the item |
-| [options.legacy] | <code>string</code> | <code>false</code> | Set to `true` for the legacy version of the item |
+| [options.relic] | <code>string</code> | <code>false</code> | Set to `true` for the relic version of the item |
 
 <a name="NinjaAPI+getCurrencyDetails"></a>
 
