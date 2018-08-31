@@ -1,6 +1,6 @@
 {
   "name": "poe-ninja-api-manager",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Access item data easily and update, save and load data from poe.ninja with NodeJS",
   "main": "index.js",
   "keywords": [
