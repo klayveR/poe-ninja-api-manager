@@ -1,5 +1,6 @@
 const request = require("request-promise-native");
 const fs = require("fs");
+const path = require("path");
 const _ = require("underscore");
 
 const Helpers = require("./modules/helpers.js");
@@ -22,6 +23,7 @@ class NinjaAPI {
     };
 
     this.options = _.extend(defaultOptions, options);
+    this.saveFile = path.join(this.options.path, this.options.dataFile);
     this.data = {};
     this.apis = [
       {overview: "currency", type: "Currency"},
@@ -386,7 +388,7 @@ class NinjaAPI {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      fs.readFile(self.options.path + self.options.dataFile, function(error, contents) {
+      fs.readFile(self.saveFile, function(error, contents) {
         if(error) { reject(error); return; }
 
         self.data = JSON.parse(contents);
@@ -406,7 +408,7 @@ class NinjaAPI {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      fs.writeFile(self.options.path + self.options.dataFile, JSON.stringify(self.data, null, 4), (error) => {
+      fs.writeFile(self.saveFile, JSON.stringify(self.data, null, 4), (error) => {
         if(error) { reject(error); return; }
 
         resolve(true);
