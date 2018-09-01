@@ -1,5 +1,6 @@
 const request = require("request-promise-native");
 const fs = require("fs");
+const _ = require("underscore");
 
 const Helpers = require("./modules/helpers.js");
 
@@ -14,12 +15,13 @@ class NinjaAPI {
   * @param {string} [options.dataFile=ninjaData.json] File in which data should be saved
   */
   constructor(options) {
-    options = options || {};
+    var defaultOptions = {
+        league: "Standard",
+        path: "./",
+        dataFile: "ninjaData.json"
+    };
 
-    this.league = options.league || "Standard";
-    this.path = options.path || "./";
-    this.dataFile = options.dataFile || "ninjaData.json";
-
+    this.options = _.extend(defaultOptions, options);
     this.data = {};
     this.apis = [
       {overview: "currency", type: "Currency"},
@@ -49,16 +51,18 @@ class NinjaAPI {
   * @reject {Error} - The `error.message` contains information about why the promise was rejected
   */
   update(options) {
-    options = options || {};
-
     var self = this;
-    var league = options.league || this.league;
-    var delay = options.delay || 200;
+    var defaultOptions = {
+        league: this.options.league,
+        delay: 200
+    };
 
-    this._resetLeagueData(league);
+    options = _.extend(defaultOptions, options);
+
+    this._resetLeagueData(options.league);
 
     return new Promise(function(resolve, reject) {
-      var promises = self._getRequestCallsArray(league, delay);
+      var promises = self._getRequestCallsArray(options.league, options.delay);
 
       Promise.all(promises)
       .then((result) => {
@@ -200,8 +204,16 @@ class NinjaAPI {
   * @fulfil {Array} - An array containing the matching item as an object. If you receive multiple objects, please open an issue.
   * @reject {Error} - The `error.message` contains information about why the promise was rejected
   */
-  getItem(name, options = {}) {
+  getItem(name, options) {
     var self = this;
+    var defaultOptions = {
+        league: this.options.league,
+        links: 0,
+        variant: null,
+        relic: false
+    };
+
+    options = _.extend(defaultOptions, options);
 
     return new Promise(function(resolve, reject) {
       var matches = self._getItemMatches(name, options);
@@ -217,11 +229,9 @@ class NinjaAPI {
   /*
   * Iterates through every API type and returns the match after first match found
   */
-  _getItemMatches(name, options = {}) {
-    var league = options.league || this.league;
-
-    if(this._hasDataForLeague(league)) {
-      for(var type in this.data[league]) {
+  _getItemMatches(name, options) {
+    if(this._hasDataForLeague(options.league)) {
+      for(var type in this.data[options.league]) {
         var matches = this._getMatchesInType(type, name, options);
 
         if(matches.length > 0) {
@@ -237,11 +247,10 @@ class NinjaAPI {
   * Calls the corresponding functions for finding matches in items and currency
   */
   _getMatchesInType(type, name, options) {
-    var league = options.league || this.league;
     var overview = Helpers.getOverviewByType(type, this.apis);
     var matches = [];
 
-    if(this._hasDataForTypeInLeague(type, league)) {
+    if(this._hasDataForTypeInLeague(type, options.league)) {
       if(overview === "item") {
         matches = this._getItemMatchesInType(type, name, options);
       } else {
@@ -258,18 +267,13 @@ class NinjaAPI {
   * Gets item matches in a specific API type
   */
   _getItemMatchesInType(type, name, options) {
-    var league = options.league || this.league;
-    var links = options.links || 0;
-    var variant = options.variant || null;
-    var relic = options.relic || false;
-
     // Match fitting items with filter()
-    var matches = this.data[league][type].filter(function(item) {
+    var matches = this.data[options.league][type].filter(function(item) {
       return (item.name === name
-        && item.links === links
-        && item.variant === variant
-        && ((relic && item.itemClass === 9)
-          || (!relic && item.itemClass !== 9)));
+        && item.links === options.links
+        && item.variant === options.variant
+        && ((options.relic && item.itemClass === 9)
+          || (!options.relic && item.itemClass !== 9)));
     });
 
     return matches;
@@ -279,10 +283,8 @@ class NinjaAPI {
   * Gets currency matches in a specific API type
   */
   _getCurrencyMatchesInType(type, name, options) {
-    var league = options.league || this.league;
-
     // Match fitting items with filter()
-    var matches = this.data[league][type].filter(function(item) {
+    var matches = this.data[options.league][type].filter(function(item) {
       return (item.currencyTypeName === name);
     });
 
@@ -330,7 +332,7 @@ class NinjaAPI {
   * @returns {string}
   */
   getLeague() {
-    return this.league;
+    return this.options.league;
   }
 
   /**
@@ -340,7 +342,7 @@ class NinjaAPI {
   */
   setLeague(league) {
     if(league !== "" && typeof league !== "undefined") {
-      this.league = league;
+      this.options.league = league;
     }
   }
 
@@ -386,7 +388,7 @@ class NinjaAPI {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      fs.readFile(self.path + self.dataFile, function(error, contents) {
+      fs.readFile(self.options.path + self.options.dataFile, function(error, contents) {
         if(error) { reject(error); return; }
 
         self.data = JSON.parse(contents);
@@ -406,7 +408,7 @@ class NinjaAPI {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-      fs.writeFile(self.path + self.dataFile, JSON.stringify(self.data, null, 4), (error) => {
+      fs.writeFile(self.options.path + self.options.dataFile, JSON.stringify(self.data, null, 4), (error) => {
         if(error) { reject(error); return; }
 
         resolve(true);
