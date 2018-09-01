@@ -127,6 +127,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release
 
+[0.6.3]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.3
 [0.6.2]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.2
 [0.6.1]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.1
 [0.6.0]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.0
