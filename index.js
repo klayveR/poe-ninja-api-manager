@@ -267,14 +267,15 @@ class NinjaAPI {
   * Gets item matches in a specific API type
   */
   _getItemMatchesInType(type, name, options) {
-    // Match fitting items with filter()
-    var matches = this.data[options.league][type].filter(function(item) {
-      return (item.name === name
-        && item.links === options.links
-        && item.variant === options.variant
-        && ((options.relic && item.itemClass === 9)
-          || (!options.relic && item.itemClass !== 9)));
-    });
+    var itemArray = this.data[options.league][type];
+
+    var matches = _.where(itemArray, {name: name, links: options.links, variant: options.variant});
+
+    if(options.relic) {
+      matches = _.filter(matches, function(item) { return (item.itemClass === 9); });
+    } else {
+      matches = _.filter(matches, function(item) { return (item.itemClass !== 9); });
+    }
 
     return matches;
   }
@@ -283,12 +284,9 @@ class NinjaAPI {
   * Gets currency matches in a specific API type
   */
   _getCurrencyMatchesInType(type, name, options) {
-    // Match fitting items with filter()
-    var matches = this.data[options.league][type].filter(function(item) {
-      return (item.currencyTypeName === name);
-    });
+    var currencyArray = this.data[options.league][type];
 
-    return matches;
+    return _.where(currencyArray, {currencyTypeName: name});
   }
 
   /**
