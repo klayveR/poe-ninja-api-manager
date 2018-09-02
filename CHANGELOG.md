@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.6.4] - 2018-09-01
+### Fixed
+- Now correctly joins path and file name in all cases
+
 ## [0.6.3] - 2018-09-01
 ### Changed
 - Now using `underscore` for filtering the correct item
@@ -127,6 +131,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release
 
+[0.6.4]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.4
 [0.6.3]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.3
 [0.6.2]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.2
 [0.6.1]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.1
