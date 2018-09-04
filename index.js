@@ -39,6 +39,8 @@ class NinjaAPI {
       {overview: "item", type: "UniqueWeapon"},
       {overview: "item", type: "UniqueArmour"},
       {overview: "item", type: "UniqueAccessory"},
+      {overview: "item", type: "Fossil"},
+      {overview: "item", type: "Resonator"},
     ];
   }
 
