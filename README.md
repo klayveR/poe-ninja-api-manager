@@ -103,7 +103,7 @@ The optional options do no apply for currency items, except for `options.league`
 | [options.links] | <code>string</code> | <code>0</code> | Links the item should have |
 | [options.variant] | <code>string</code> | <code>null</code> | Variant of the item. If set to `null` and no item is found, the items with a variant will be returned, if present. If set to a variant and no item is found, the item with no variant will be returned, if present. |
 | [options.relic] | <code>string</code> | <code>false</code> | Set to `true` for the relic version of the item |
-| [options.baseType] | <code>string</code> | <code>false</code> | Base type of the item. Is ignored if not specified |
+| [options.baseType] | <code>string</code> | <code>null</code> | Base type of the item. Is ignored if not specified |
 
 <a name="NinjaAPI+getCurrencyDetails"></a>
 

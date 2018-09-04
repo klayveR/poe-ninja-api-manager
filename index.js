@@ -202,7 +202,7 @@ class NinjaAPI {
   * @param {string} [options.links=0] Links the item should have
   * @param {string} [options.variant=null] Variant of the item. If set to `null` and no item is found, the items with a variant will be returned, if present. If set to a variant and no item is found, the item with no variant will be returned, if present.
   * @param {string} [options.relic=false] Set to `true` for the relic version of the item
-  * @param {string} [options.baseType=false] Base type of the item. Is ignored if not specified
+  * @param {string} [options.baseType=null] Base type of the item. Is ignored if not specified
   * @returns {Promise}
   * @fulfil {Array} - An array containing the matching item as an object. If you receive multiple objects, please open an issue.
   * @reject {Error} - The `error.message` contains information about why the promise was rejected
