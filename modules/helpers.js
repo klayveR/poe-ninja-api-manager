@@ -29,7 +29,7 @@ class Helpers {
   * Builds the URL for an API call
   */
   static buildApiUrl(overview, type, league) {
-    return "http://poe.ninja/api/data/" + overview + "overview?league=" + league + "&type=" + type;
+    return "https://poe.ninja/api/data/" + overview + "overview?league=" + league + "&type=" + type;
   }
 
   /*
