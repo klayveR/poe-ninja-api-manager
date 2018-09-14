@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.6.8] - 2018-09-14
+### Changed
+- Using the `keep-alive` header for requests
+
 ## [0.6.7] - 2018-09-14
 ### Changed
 - Requests are now being made via `https` instead of `http`
@@ -146,6 +150,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial release
 
+[0.6.8]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.8
 [0.6.7]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.7
 [0.6.6]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.6
 [0.6.4]: https://www.npmjs.com/package/poe-ninja-api-manager/v/0.6.4

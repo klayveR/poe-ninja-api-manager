@@ -89,13 +89,13 @@ class NinjaAPI {
     return new Promise(function(resolve, reject) {
       // Request the API
       setTimeout(function() {
-        request({uri: url, json: true})
+        request(url, {json: true, headers:{'Connection': 'keep-alive'}})
         .then((contents) => {
           return self._processRequest(contents, api, league, resolve, reject);
         })
         .catch((error) => {
           return reject(error);
-        });
+        })
       }, delay);
     });
   }
