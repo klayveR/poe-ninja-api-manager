@@ -55,6 +55,7 @@ ninjaAPI.update()
     * [.setLeague(league)](#NinjaAPI+setLeague)
     * [.load()](#NinjaAPI+load) ⇒ <code>Promise</code>
     * [.save()](#NinjaAPI+save) ⇒ <code>Promise</code>
+    * [.isUpdating()](#NinjaAPI+isUpdating) ⇒ <code>boolean</code>
 
 <a name="new_NinjaAPI_new"></a>
 
@@ -101,7 +102,8 @@ The optional options do no apply for currency items, except for `options.league`
 | [options] | <code>Object</code> |  | An optional options object |
 | [options.league] | <code>string</code> | <code>&quot;Standard&quot;</code> | League that should be searched |
 | [options.links] | <code>string</code> | <code>0</code> | Links the item should have |
-| [options.variant] | <code>string</code> | <code>null</code> | Variant of the item. If set to `null` and no item is found, the items with a variant will be returned, if present. If set to a variant and no item is found, the item with no variant will be returned, if present. |
+| [options.variant] | <code>string</code> | <code>null</code> | Variant of the item. If no variant is specified, any variant of the item will be returned, but preferably the default (`null` variant) of the item |
+| [options.fallbackVariant] | <code>string</code> | <code>null</code> | If a variant was specified but not found, try to find this instead. Useful for defaulting gems to the level 20 variant |
 | [options.relic] | <code>string</code> | <code>false</code> | Set to `true` for the relic version of the item |
 | [options.baseType] | <code>string</code> | <code>null</code> | Base type of the item. Is ignored if not specified |
 
@@ -162,3 +164,9 @@ Saves the currently loaded or updated data to file.
 **Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  
 **Fulfil**: <code>boolean</code> - `true` if the data was saved successfully  
 **Reject**: <code>Error</code> - The `error.message` contains information about why the promise was rejected  
+<a name="NinjaAPI+isUpdating"></a>
+
+### ninjaAPI.isUpdating() ⇒ <code>boolean</code>
+Returns `true` if data is currently being updated
+
+**Kind**: instance method of [<code>NinjaAPI</code>](#NinjaAPI)  

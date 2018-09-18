@@ -22,6 +22,7 @@ class NinjaAPI {
         dataFile: "ninjaData.json"
     };
 
+    this.updating = false;
     this.options = _.extend(defaultOptions, options);
     this.saveFile = path.join(this.options.path, this.options.dataFile);
     this.data = {};
@@ -66,16 +67,24 @@ class NinjaAPI {
     this._resetLeagueData(options.league);
 
     return new Promise(function(resolve, reject) {
-      var promises = self._getRequestCallsArray(options.league, options.delay);
+      if(!self.updating) {
+        self.updating = true;
+        var promises = self._getRequestCallsArray(options.league, options.delay);
 
-      Promise.all(promises)
-      .then((result) => {
-        self._storeApiData(result);
-        return resolve(result);
-      })
-      .catch((error) => {
-        return reject(error);
-      });
+        Promise.all(promises)
+        .then((result) => {
+          self._storeApiData(result);
+          return resolve(result);
+        })
+        .catch((error) => {
+          return reject(error);
+        })
+        .then(() => {
+          self.updating = false;
+        });
+      } else {
+        return reject(new Error("Update is already in progress"));
+      }
     });
   }
 
@@ -202,7 +211,8 @@ class NinjaAPI {
   * @param {Object} [options] An optional options object
   * @param {string} [options.league=Standard] League that should be searched
   * @param {string} [options.links=0] Links the item should have
-  * @param {string} [options.variant=null] Variant of the item. If set to `null` and no item is found, the items with a variant will be returned, if present. If set to a variant and no item is found, the item with no variant will be returned, if present.
+  * @param {string} [options.variant=null] Variant of the item. If no variant is specified, any variant of the item will be returned, but preferably the default (`null` variant) of the item
+  * @param {string} [options.fallbackVariant=null] If a variant was specified but not found, try to find this instead. Useful for defaulting gems to the level 20 variant
   * @param {string} [options.relic=false] Set to `true` for the relic version of the item
   * @param {string} [options.baseType=null] Base type of the item. Is ignored if not specified
   * @returns {Promise}
@@ -215,9 +225,15 @@ class NinjaAPI {
         league: this.options.league,
         links: 0,
         variant: null,
+        fallbackVariant: null,
         relic: false,
-        baseType: null
+        baseType: null,
+        variantSpecified: false
     };
+
+    if(options.hasOwnProperty("variant")) {
+      options.variantSpecified = true;
+    }
 
     options = _.extend(defaultOptions, options);
 
@@ -287,11 +303,26 @@ class NinjaAPI {
       matches = _.where(matches, {baseType: options.baseType});
     }
 
-    // Filter for variants and then check if there are any items for this variant, otherwise simply skip the variant
-    // filtering and hope there's an item with (or without) a variant
-    var variantMatches = _.where(matches, {variant: options.variant});
-    if(variantMatches.length !== 0) {
-      matches = variantMatches;
+    // If a variant was specified, filter for that exact variant or fallback variant
+    // If no variant was specified, prefer the null variant, but return any variant if there's no null variant
+    if(options.variantSpecified) {
+      var variantMatches = _.where(matches, {variant: options.variant});
+
+      if(variantMatches.length > 0) {
+        matches = variantMatches;
+      } else {
+        var fallbackVariantMatches = _.where(matches, {variant: options.fallbackVariant});
+        if(fallbackVariantMatches.length > 0) {
+          matches = fallbackVariantMatches;
+        } else {
+          matches = variantMatches;
+        }
+      }
+    } else {
+      var nullMatches = _.where(matches, {variant: "null"});
+      if(nullMatches.length === 1) {
+        matches = nullMatches;
+      }
     }
 
     return matches;
@@ -429,6 +460,15 @@ class NinjaAPI {
         resolve(true);
       });
     });
+  }
+
+  /**
+  * Returns `true` if data is currently being updated
+  *
+  * @returns {boolean}
+  */
+  isUpdating() {
+    return this.updating;
   }
 }
 

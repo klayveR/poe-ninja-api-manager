@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2018-09-18
+### Added
+- Added `isUpdating()` method
+- Added `fallbackVariant` as an option for the `getItem()` function
+
+### Changed
+- An item will now only check for the variant of an item if `options.variant` was specified when making the `getItem()` request. If a variant is specified and not found, it will either return the fallback variant or reject the promise. If no variant was specified, it will return the first match, but prefer the `null` variant.
+
 ## [0.6.8] - 2018-09-14
 ### Changed
 - Using the `keep-alive` header for requests
