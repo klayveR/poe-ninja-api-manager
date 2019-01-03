@@ -22,10 +22,6 @@ class NinjaAPI {
         dataFile: "ninjaData.json"
     };
 
-    const betrayalOnly = [
-      {overview: "item", type: "Scarab"}
-    ];
-
     this.updating = false;
     this.options = _.extend(defaultOptions, options);
     this.saveFile = path.join(this.options.path, this.options.dataFile);
@@ -46,11 +42,8 @@ class NinjaAPI {
       {overview: "item", type: "UniqueAccessory"},
       {overview: "item", type: "Fossil"},
       {overview: "item", type: "Resonator"},
+      {overview: "item", type: "Scarab"},
     ];
-
-    if (options.league === "Betrayal") {
-      this.apis = [...this.apis, ...betrayalOnly];
-    }
   }
 
   /**

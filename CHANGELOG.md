@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Incude Scarabs in the API when the league is Betrayal.
+- Incude Scarabs in the API.
 
 ## [0.7.0] - 2018-09-18
 ### Added
