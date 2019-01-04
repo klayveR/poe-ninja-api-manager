@@ -24,7 +24,7 @@ describe("NinjaAPI class", () => {
             });
         });
 
-        it("Should call the POE ninja api for the various types", done => {
+        it("Should call the POE ninja api for the various types", (done) => {
             ninjaAPI.update();
 
             // TODO: Fix the timeout in the _requestApiData method to prevent 
