@@ -1,3 +1,4 @@
+/*global jest*/
 const NinjaAPI = require("./index");
 const request = require("request-promise-native");
 
