@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
-- Incude Scarabs in the API.
+- Incude Scarabs in the list of APIs
+- Jest as the test framework for this project
 
 ## [0.7.0] - 2018-09-18
 ### Added
