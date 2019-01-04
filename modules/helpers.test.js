@@ -1,5 +1,5 @@
 /*globals jest*/
-const Helpers = require('./helpers');
+const Helpers = require("./helpers");
 
 describe("Helper class", () => {
     describe("isSameObject", () => {
