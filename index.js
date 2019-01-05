@@ -16,7 +16,7 @@ class NinjaAPI {
   * @param {string} [options.dataFile=ninjaData.json] File in which data should be saved
   */
   constructor(options) {
-    var defaultOptions = {
+    const defaultOptions = {
         league: "Standard",
         path: "./",
         dataFile: "ninjaData.json"
@@ -42,6 +42,7 @@ class NinjaAPI {
       {overview: "item", type: "UniqueAccessory"},
       {overview: "item", type: "Fossil"},
       {overview: "item", type: "Resonator"},
+      {overview: "item", type: "Scarab"},
     ];
   }
 

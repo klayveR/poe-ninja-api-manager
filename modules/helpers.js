@@ -18,11 +18,7 @@ class Helpers {
   * This function name might be technically incorrect ;)
   */
   static isSameObject(obj1, obj2) {
-    if(JSON.stringify(obj1) === JSON.stringify(obj2)) {
-      return true;
-    }
-
-    return false;
+    return JSON.stringify(obj1) === JSON.stringify(obj2);
   }
 
   /*

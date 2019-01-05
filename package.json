@@ -28,5 +28,11 @@
     "request": "^2.88.0",
     "request-promise-native": "^1.0.5",
     "underscore": "^1.9.1"
+  },
+  "devDependencies": {
+    "jest": "^23.6.0"
+  },
+  "scripts": {
+    "test": "jest"
   }
 }
